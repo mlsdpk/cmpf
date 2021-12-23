@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>cmpf_controller_server</name>
+  <version>1.0.0</version>
+  <description>The cmpf_controller_server package</description>
+
+  <maintainer email="mlsdphonethk@gmail.com">Phone Thiha Kyaw</maintainer>
+
+  <license>TODO</license>
+
+  <author email="mlsdphonethk@gmail.com">Phone Thiha Kyaw</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <depend>roscpp</depend>
+  <depend>actionlib</depend>
+  <depend>pluginlib</depend>
+  <depend>cmpf_msgs</depend>
+  <depend>cmpf_core</depend>
+  <depend>nodelet</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+
+  <export>
+    <nodelet plugin="${prefix}/cmpf_controller_server_nodelet_plugin.xml" />
+  </export>
+</package>

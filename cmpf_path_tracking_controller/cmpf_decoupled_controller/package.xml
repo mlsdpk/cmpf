@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>cmpf_decoupled_controller</name>
+  <version>1.0.0</version>
+  <description>The cmpf_decoupled_controller package</description>
+
+  <maintainer email="mlsdphonethk@gmail.com">Phone Thiha Kyaw</maintainer>
+
+  <license>TODO</license>
+
+  <author email="mlsdphonethk@gmail.com">Phone Thiha Kyaw</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <depend>roscpp</depend>
+  <depend>carla_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>cmpf_core</depend>
+  <depend>pluginlib</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+
+  <export>
+    <cmpf_core plugin="${prefix}/decoupled_controller_plugin.xml" />
+  </export>
+</package>

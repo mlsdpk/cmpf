@@ -1,0 +1,6 @@
+<library path="lib/libcmpf_controller_server_nodelet">
+  <class 
+    name="cmpf_controller_server/ControllerServerNodelet" 
+    type="cmpf::path_tracking_controller::ControllerServerNodelet" 
+    base_class_type="nodelet::Nodelet"/>
+</library>

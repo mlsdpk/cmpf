@@ -1,0 +1,6 @@
+<library path="lib/libcmpf_decoupled_controller">
+  <class 
+    name="cmpf_decoupled_controller/DecoupledController" 
+    type="cmpf::path_tracking_controller::decoupled_controller::DecoupledController" 
+    base_class_type="cmpf::cmpf_core::BaseController"/>
+</library>

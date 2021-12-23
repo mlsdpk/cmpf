@@ -1,0 +1,6 @@
+path_tracking_controller:
+  controller_frequency: 20.0
+  controller_plugin: "cmpf_decoupled_controller/DecoupledController"
+  DecoupledController:
+    longitudinal_controller_plugin: "cmpf_decoupled_controller/PID"
+    lateral_controller_plugin: "cmpf_decoupled_controller/PurePursuit"
