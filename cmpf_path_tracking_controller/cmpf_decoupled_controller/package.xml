@@ -13,6 +13,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   
   <depend>roscpp</depend>
+  <depend>cmpf_msgs</depend>
   <depend>carla_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>cmpf_core</depend>
@@ -22,5 +23,6 @@
 
   <export>
     <cmpf_core plugin="${prefix}/decoupled_controller_plugin.xml" />
+    <cmpf_decoupled_controller plugin="${prefix}/controller_plugins.xml" />
   </export>
 </package>

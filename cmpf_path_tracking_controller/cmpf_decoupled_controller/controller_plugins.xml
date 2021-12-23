@@ -1,0 +1,6 @@
+<library path="lib/libpure_pursuit_controller">
+  <class 
+    name="cmpf_decoupled_controller/PurePursuit" 
+    type="cmpf::path_tracking_controller::decoupled_controller::PurePursuit" 
+    base_class_type="cmpf::path_tracking_controller::decoupled_controller::LateralController"/>
+</library>

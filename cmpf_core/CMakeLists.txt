@@ -8,6 +8,7 @@ endif()
 
 set(${PROJECT_NAME}_CATKIN_DEPS
   roscpp
+  cmpf_msgs
   carla_msgs
   geometry_msgs
   tf2

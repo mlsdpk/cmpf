@@ -8,6 +8,7 @@ endif()
 
 set(${PROJECT_NAME}_CATKIN_DEPS
   roscpp
+  cmpf_msgs
   carla_msgs
   cmpf_core
   geometry_msgs
@@ -33,8 +34,23 @@ include_directories(
 add_library(cmpf_decoupled_controller
   src/decoupled_controller.cpp
 )
-
+add_dependencies(cmpf_decoupled_controller
+  ${${PROJECT_NAME}_EXPORTED_TARGETS} 
+  ${catkin_EXPORTED_TARGETS}
+)
 target_link_libraries(cmpf_decoupled_controller
+  ${catkin_LIBRARIES}
+)
+
+# PurePursuit plugin
+add_library(pure_pursuit_controller
+  plugins/pure_pursuit_controller.cpp
+)
+add_dependencies(pure_pursuit_controller
+  ${${PROJECT_NAME}_EXPORTED_TARGETS} 
+  ${catkin_EXPORTED_TARGETS}
+)
+target_link_libraries(pure_pursuit_controller
   ${catkin_LIBRARIES}
 )
 
@@ -44,6 +60,7 @@ target_link_libraries(cmpf_decoupled_controller
 
 install(TARGETS
   cmpf_decoupled_controller
+  pure_pursuit_controller
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -55,5 +72,6 @@ install(DIRECTORY include/${PROJECT_NAME}/
 
 install(FILES 
   decoupled_controller_plugin.xml
+  controller_plugins.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

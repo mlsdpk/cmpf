@@ -1,5 +1,5 @@
 #goal definition
-nav_msgs/Path path
+cmpf_msgs/TrajectoryMsg trajectory
 string controller_id
 string goal_checker_id
 ---
