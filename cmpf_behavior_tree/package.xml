@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>cmpf_behavior_tree</name>
+  <version>1.0.0</version>
+  <description>The cmpf_behavior_tree package</description>
+
+  <maintainer email="mlsdphonethk@gmail.com">Phone Thiha Kyaw</maintainer>
+
+  <license>Apache-2.0</license>
+
+  <author email="mlsdphonethk@gmail.com">Phone Thiha Kyaw</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <depend>roscpp</depend>
+  <depend>nodelet</depend>
+  <depend>actionlib</depend>
+  <depend>behaviortree_cpp_v3</depend>
+  <depend>cmpf_msgs</depend>
+
+  <export>
+    <nodelet plugin="${prefix}/cmpf_bt_server_nodelet_plugin.xml" />
+  </export>
+</package>

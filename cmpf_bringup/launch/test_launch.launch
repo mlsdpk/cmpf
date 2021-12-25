@@ -4,10 +4,19 @@
     <group ns="cmpf">
         <rosparam file="$(find cmpf_bringup)/config/params.yaml" command="load"/>
         <node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager)" args="manager" output="screen"/>
+
+        <!-- controller server nodelet -->
         <node 
             pkg="nodelet" 
             type="nodelet" 
             name="path_tracking_controller" 
             args="load cmpf_controller_server/ControllerServerNodelet $(arg nodelet_manager)"/>
+
+        <!-- bt server nodelet -->
+        <node 
+            pkg="nodelet" 
+            type="nodelet" 
+            name="behavior_tree" 
+            args="load cmpf_behavior_tree/BTServerNodelet $(arg nodelet_manager)"/>
     </group>
 </launch> 

@@ -1,0 +1,6 @@
+<library path="lib/libbt_server_nodelet">
+  <class 
+    name="cmpf_behavior_tree/BTServerNodelet" 
+    type="cmpf::behavior_tree::BTServerNodelet" 
+    base_class_type="nodelet::Nodelet"/>
+</library>

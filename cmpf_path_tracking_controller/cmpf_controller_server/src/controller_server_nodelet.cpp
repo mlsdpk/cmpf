@@ -75,7 +75,7 @@ class ControllerServerNodelet : public nodelet::Nodelet {
 
     // create action server
     action_server_ = std::make_unique<ActionServer>(
-        nh_, "follow_trajectory",
+        private_nh_, "follow_trajectory",
         std::bind(&ControllerServerNodelet::actionServerCallBack, this), false);
     action_server_->start();
   }
