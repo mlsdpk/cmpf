@@ -19,6 +19,7 @@
 #include <behaviortree_cpp_v3/utils/shared_library.h>
 #include <behaviortree_cpp_v3/xml_parsing.h>
 #include <nodelet/nodelet.h>
+#include <ros/package.h>
 #include <ros/ros.h>
 
 #include <memory>
@@ -41,6 +42,12 @@ class BTServerNodelet : public nodelet::Nodelet {
     mt_nh_ = getMTNodeHandle();
     private_nh_ = getPrivateNodeHandle();
 
+    // ros parameters
+    // get default bt xml file or retrieve from parameter server
+    std::string pkg_path = ros::package::getPath("cmpf_behavior_tree");
+    bt_xml_file_path_ = pkg_path + "/behavior_trees/default_bt.xml";
+    private_nh_.param("bt_xml_file_path", bt_xml_file_path_, bt_xml_file_path_);
+
     // get all the BT plugins
     const std::vector<std::string> bt_plugin_libs = {
         "cmpf_follow_trajectory_action_client_bt_node"};
@@ -56,18 +63,14 @@ class BTServerNodelet : public nodelet::Nodelet {
     black_board_->set<std::string>("ns", nh_.getNamespace());
 
     // Create the Behavior Tree from the XML input
-    static const char* xml_text = R"(
-      <root main_tree_to_execute = "MainTree" >
-          <BehaviorTree ID="MainTree">
-              <Sequence name="root_sequence">
-                  <FollowTrajectory server_name="/path_tracking_controller/follow_trajectory"/>
-              </Sequence>
-          </BehaviorTree>
-      </root>
-    )";
-
-    auto tree = factory_.createTreeFromText(xml_text, black_board_);
-    tree.tickRoot();
+    try {
+      ROS_INFO("Loading behavior tree from %s", bt_xml_file_path_.c_str());
+      auto tree = factory_.createTreeFromFile(bt_xml_file_path_, black_board_);
+      tree.tickRoot();
+    } catch (const std::exception& ex) {
+      ROS_FATAL("Failed to load the behavior tree. Exception: %s", ex.what());
+      exit(1);
+    }
   }
 
  private:
@@ -77,9 +80,13 @@ class BTServerNodelet : public nodelet::Nodelet {
   ros::NodeHandle mt_nh_;
   ros::NodeHandle private_nh_;
 
+  // params
+  std::string bt_xml_file_path_;
+
   // The BehaviorTreeFactory to dynamically construct the behavior tree
   BT::BehaviorTreeFactory factory_;
 
+  // BT blackboard to share data by all the nodes of the tree
   BT::Blackboard::Ptr black_board_;
 };
 
