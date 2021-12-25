@@ -17,7 +17,7 @@ find_package(catkin REQUIRED COMPONENTS ${${PROJECT_NAME}_CATKIN_DEPS})
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES bt_server_nodelet ${bt_plugin_libs}
+  LIBRARIES bt_action_server_nodelet ${bt_plugin_libs}
   CATKIN_DEPENDS ${${PROJECT_NAME}_CATKIN_DEPS}
 )
 
@@ -27,14 +27,14 @@ include_directories(
 )
 
 # Controller nodelet
-add_library(bt_server_nodelet
-  src/bt_server_nodelet.cpp
+add_library(bt_action_server_nodelet
+  src/bt_action_server_nodelet.cpp
 )
-add_dependencies(bt_server_nodelet
+add_dependencies(bt_action_server_nodelet
   ${${PROJECT_NAME}_EXPORTED_TARGETS} 
   ${catkin_EXPORTED_TARGETS}
 )
-target_link_libraries(bt_server_nodelet
+target_link_libraries(bt_action_server_nodelet
   ${catkin_LIBRARIES}
 )
 
@@ -58,7 +58,7 @@ endforeach()
 #############
 
 install(TARGETS
-  bt_server_nodelet
+  bt_action_server_nodelet
   ${bt_plugin_libs}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -70,6 +70,6 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 install(FILES 
-  cmpf_bt_server_nodelet_plugin.xml
+  cmpf_bt_action_server_nodelet_plugin.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

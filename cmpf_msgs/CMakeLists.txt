@@ -24,6 +24,7 @@ add_message_files(
 ## Generate actions in the 'action' folder
 add_action_files(
   FILES
+  NavigateToPose.action
   Trajectory.action
 )
 
