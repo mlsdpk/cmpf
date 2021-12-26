@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib 
   std_msgs
   geometry_msgs
+  nav_msgs
   message_generation
 ) 
 
@@ -25,6 +26,7 @@ add_message_files(
 add_action_files(
   FILES
   NavigateToPose.action
+  ComputeRouteToPose.action
   Trajectory.action
 )
 
@@ -33,6 +35,7 @@ generate_messages(
 	DEPENDENCIES
 	std_msgs
 	geometry_msgs
+  nav_msgs
 	actionlib_msgs
 )
 
@@ -41,6 +44,7 @@ catkin_package(
   actionlib_msgs 
   std_msgs 
   geometry_msgs
+  nav_msgs
   message_runtime
 )
 

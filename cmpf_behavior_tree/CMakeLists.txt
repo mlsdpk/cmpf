@@ -42,6 +42,9 @@ target_link_libraries(bt_action_server_nodelet
 add_library(cmpf_follow_trajectory_action_client_bt_node plugins/follow_trajectory_action_client.cpp)
 list(APPEND bt_plugin_libs cmpf_follow_trajectory_action_client_bt_node)
 
+add_library(cmpf_compute_route_action_client_bt_node plugins/compute_route_action_client.cpp)
+list(APPEND bt_plugin_libs cmpf_compute_route_action_client_bt_node)
+
 foreach(bt_plugin ${bt_plugin_libs})
   add_dependencies(${bt_plugin}
     ${${PROJECT_NAME}_EXPORTED_TARGETS} 

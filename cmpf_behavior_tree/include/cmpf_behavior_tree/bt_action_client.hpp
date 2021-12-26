@@ -1,5 +1,5 @@
 /************************************************************************
-  Copyright 2018 Intel Corporation
+  Copyright 2021 Phone Thiha Kyaw
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
   limitations under the License.
 ************************************************************************/
 
-// Modified by Phone Thiha Kyaw
-
 #pragma once
 
+#include <actionlib/action_definition.h>
 #include <actionlib/client/simple_action_client.h>
+#include <actionlib/client/simple_client_goal_state.h>
 #include <behaviortree_cpp_v3/action_node.h>
 #include <ros/ros.h>
 
@@ -57,21 +57,6 @@ class BTActionClientNode : public BT::ActionNodeBase {
   virtual ~BTActionClientNode() {}
 
   /**
-   * @brief Create instance of an action client
-   * @param action_server_name Action server name to create client for
-   */
-  void createActionClient(const std::string& action_server_name) {
-    // Now that we have the ROS node to use, create the action client for this
-    // BT action
-    action_client_ = std::make_shared<actionlib::SimpleActionClient<ActionT>>(
-        action_server_name);
-
-    // Make sure the server is actually there before continuing
-    ROS_INFO("Waiting for \"%s\" action server", action_server_name.c_str());
-    action_client_->waitForServer();
-  }
-
-  /**
    * @brief Any subclass of BTActionClientNode that accepts parameters must
    * provide a providedPorts method and call providedBasicPorts in it.
    * @param addition Additional ports to add to BT port list
@@ -91,6 +76,17 @@ class BTActionClientNode : public BT::ActionNodeBase {
    * @return BT::PortsList Containing basic ports along with node-specific ports
    */
   static BT::PortsList providedPorts() { return providedBasicPorts({}); }
+
+ protected:
+  ACTION_DEFINITION(ActionT)
+  typedef actionlib::SimpleActionClient<ActionT> Client;
+  typedef std::shared_ptr<Client> ClientPtr;
+
+  ClientPtr action_client_;
+  std::string action_server_name_;
+  Goal goal_;
+  Result result_;
+  bool goal_updated_{false};
 
   // Derived classes can override any of the following methods to hook into the
   // processing for the action: on_tick, on_wait_for_result, and on_success
@@ -135,6 +131,26 @@ class BTActionClientNode : public BT::ActionNodeBase {
    */
   virtual BT::NodeStatus on_cancelled() { return BT::NodeStatus::SUCCESS; }
 
+ private:
+  /**
+   * @brief Create instance of an action client
+   * @param action_server_name Action server name to create client for
+   */
+  void createActionClient(const std::string& action_server_name) {
+    // Now that we have the ROS node to use, create the action client for this
+    // BT action
+    action_client_ = std::make_shared<Client>(action_server_name);
+
+    // Make sure the server is actually there before continuing
+    ROS_INFO("Waiting for \"%s\" action server", action_server_name.c_str());
+    action_client_->waitForServer();
+  }
+
+  /**
+   * @brief Function to send new goal to action server
+   */
+  void sendNewGoal() { ROS_INFO("Sending new goal..."); }
+
   /**
    * @brief The main override required by a BT action
    * @return BT::NodeStatus Status of tick execution
@@ -148,7 +164,7 @@ class BTActionClientNode : public BT::ActionNodeBase {
       // user defined callback
       on_tick();
 
-      //   send_new_goal();
+      sendNewGoal();
     }
     return on_success();
   }
@@ -158,11 +174,6 @@ class BTActionClientNode : public BT::ActionNodeBase {
    * we make sure to cancel the ROS action if it is still running.
    */
   void halt() override { setStatus(BT::NodeStatus::IDLE); }
-
- private:
-  std::string action_server_name_;
-  typename std::shared_ptr<actionlib::SimpleActionClient<ActionT>>
-      action_client_;
 };
 
 }  // namespace behavior_tree

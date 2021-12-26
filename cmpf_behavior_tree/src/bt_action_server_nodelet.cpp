@@ -55,6 +55,7 @@ class BTActionServerNodelet : public nodelet::Nodelet {
 
     // get all the BT plugins
     const std::vector<std::string> bt_plugin_libs = {
+        "cmpf_compute_route_action_client_bt_node",
         "cmpf_follow_trajectory_action_client_bt_node"};
 
     // register the BT plugin nodes in BehaviorTreeFactory

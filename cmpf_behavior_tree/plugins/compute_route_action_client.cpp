@@ -14,7 +14,7 @@
   limitations under the License.
 ************************************************************************/
 
-#include "cmpf_behavior_tree/plugins/follow_trajectory_action_client.hpp"
+#include "cmpf_behavior_tree/plugins/compute_route_action_client.hpp"
 
 #include <memory>
 #include <string>
@@ -22,27 +22,19 @@
 namespace cmpf {
 namespace behavior_tree {
 
-FollowTrajectoryActionClient::FollowTrajectoryActionClient(
+ComputeRouteActionClient::ComputeRouteActionClient(
     const std::string& xml_tag_name, const std::string& action_server_name,
     const BT::NodeConfiguration& conf)
-    : BTActionClientNode<cmpf_msgs::TrajectoryAction>(
+    : BTActionClientNode<cmpf_msgs::ComputeRouteToPoseAction>(
           xml_tag_name, action_server_name, conf) {}
 
-void FollowTrajectoryActionClient::on_tick() {
-  getInput("trajectory", goal_.trajectory);
+void ComputeRouteActionClient::on_tick() {
+  getInput("goal_pose", goal_.goal_pose);
 }
 
-void FollowTrajectoryActionClient::on_wait_for_result() {
-  // Grab the new path
-  cmpf_msgs::TrajectoryMsg new_trajectory;
-  getInput("trajectory", new_trajectory);
-
-  // Check if it is not same with the current one
-  if (goal_.trajectory != new_trajectory) {
-    // the action server on the next loop iteration
-    goal_.trajectory = new_trajectory;
-    goal_updated_ = true;
-  }
+BT::NodeStatus ComputeRouteActionClient::on_success() {
+  setOutput("trajectory", result_.path);
+  return BT::NodeStatus::SUCCESS;
 }
 
 }  // namespace behavior_tree
@@ -52,10 +44,10 @@ void FollowTrajectoryActionClient::on_wait_for_result() {
 BT_REGISTER_NODES(factory) {
   BT::NodeBuilder builder = [](const std::string& name,
                                const BT::NodeConfiguration& config) {
-    return std::make_unique<cmpf::behavior_tree::FollowTrajectoryActionClient>(
-        name, "follow_trajectory", config);
+    return std::make_unique<cmpf::behavior_tree::ComputeRouteActionClient>(
+        name, "compute_route", config);
   };
 
-  factory.registerBuilder<cmpf::behavior_tree::FollowTrajectoryActionClient>(
-      "FollowTrajectory", builder);
+  factory.registerBuilder<cmpf::behavior_tree::ComputeRouteActionClient>(
+      "ComputeRoute", builder);
 }
