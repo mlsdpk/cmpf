@@ -11,12 +11,15 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import sphinx_rtd_theme
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
+
+# The master toctree document.
+master_doc = 'index'
 
 project = 'cmpf'
 copyright = '2021, Phone Thiha Kyaw'
