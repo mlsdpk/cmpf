@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>cmpf_common</name>
+  <version>1.0.0</version>
+  <description>The cmpf_common package</description>
+
+  <maintainer email="mlsdphonethk@gmail.com">Phone Thiha Kyaw</maintainer>
+
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>

@@ -9,6 +9,7 @@ catkin_package(
 install(
   DIRECTORY 
   launch
+  map
   config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

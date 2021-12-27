@@ -1,0 +1,6 @@
+<library path="lib/liblanelet2_map_server_nodelet">
+  <class 
+    name="cmpf_common/Lanelet2MapServerNodelet" 
+    type="cmpf::common::Lanelet2MapServerNodelet" 
+    base_class_type="nodelet::Nodelet"/>
+</library>

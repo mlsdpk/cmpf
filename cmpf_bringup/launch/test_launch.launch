@@ -1,22 +1,32 @@
 <launch>
     <arg name="nodelet_manager" default="cmpf_nodelet_manager"/>
 
+    <!-- lanelet2 map file path -->
+    <arg name="lanelet2_map_file_path" value="$(find cmpf_bringup)/map/Town01.osm"/>
+
     <group ns="cmpf">
         <rosparam file="$(find cmpf_bringup)/config/params.yaml" command="load"/>
         <node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager)" args="manager" output="screen"/>
 
-        <!-- controller server nodelet -->
+        <!-- lanelet2 map server nodelet -->
         <node 
+            pkg="nodelet" 
+            type="nodelet" 
+            name="lanelet2_map_server" 
+            args="load cmpf_common/Lanelet2MapServerNodelet $(arg nodelet_manager) $(arg lanelet2_map_file_path)"/>
+
+        <!-- controller server nodelet -->
+        <!-- <node 
             pkg="nodelet" 
             type="nodelet" 
             name="path_tracking_controller" 
-            args="load cmpf_controller_server/ControllerServerNodelet $(arg nodelet_manager)"/>
+            args="load cmpf_controller_server/ControllerServerNodelet $(arg nodelet_manager)"/> -->
 
         <!-- bt server nodelet -->
-        <node 
+        <!-- <node 
             pkg="nodelet" 
             type="nodelet" 
             name="behavior_tree" 
-            args="load cmpf_behavior_tree/BTActionServerNodelet $(arg nodelet_manager)"/>
+            args="load cmpf_behavior_tree/BTActionServerNodelet $(arg nodelet_manager)"/> -->
     </group>
 </launch> 
