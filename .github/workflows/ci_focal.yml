@@ -1,4 +1,4 @@
-name: CI
+name: CI - Ubuntu Focal
 
 on: 
   # direct pushes to protected branches are not supported
@@ -11,12 +11,12 @@ on:
 
 jobs:
   industrial_ci:
-    name: ROS ${{ matrix.ROS_DISTRO }} (${{ matrix.ROS_REPO }})
-    runs-on: ubuntu-latest
+    name: ROS Focal ${{ matrix.ROS_DISTRO }} (${{ matrix.ROS_REPO }})
+    runs-on: ubuntu-20.04
     strategy:
       matrix: # matrix is the product of entries
-        ROS_DISTRO: [melodic, noetic]
-        ROS_REPO: [testing, main]
+        ROS_DISTRO: [noetic]
+        ROS_REPO: [main, testing]
     env:
       CCACHE_DIR: "${{ github.workspace }}/.ccache" # directory for ccache (and how we enable ccache in industrial_ci)
       UPSTREAM_WORKSPACE: 'github:carla-simulator/ros-bridge#master'
