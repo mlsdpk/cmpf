@@ -19,6 +19,8 @@ jobs:
         ROS_REPO: [main]
     env:
       CCACHE_DIR: "${{ github.workspace }}/.ccache" # directory for ccache (and how we enable ccache in industrial_ci)
+      CLANG_FORMAT_CHECK: file
+      CLANG_FORMAT_VERSION: 8
       
     steps:
       - uses: actions/checkout@v2 # clone target repository
@@ -32,5 +34,3 @@ jobs:
         env:
           ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
           ROS_REPO: ${{ matrix.ROS_REPO }}
-          CLANG_FORMAT_CHECK: file
-          CLANG_FORMAT_VERSION: 8
