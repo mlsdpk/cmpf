@@ -42,8 +42,9 @@ public:
 
   void onInit() override
   {
-    NODELET_DEBUG("Initializing "
-                  "cmpf::path_tracking_controller::ControllerServerNodelet");
+    NODELET_DEBUG(
+        "Initializing "
+        "cmpf::path_tracking_controller::ControllerServerNodelet");
 
     // initialize node handlers
     nh_ = getNodeHandle();
@@ -72,9 +73,10 @@ public:
     }
     catch (const pluginlib::PluginlibException& ex)
     {
-      ROS_FATAL("Failed to create the %s controller, are you sure it is properly "
-                "registered and that the containing library is built? Exception: %s",
-                controller_plugin_.c_str(), ex.what());
+      ROS_FATAL(
+          "Failed to create the %s controller, are you sure it is properly "
+          "registered and that the containing library is built? Exception: %s",
+          controller_plugin_.c_str(), ex.what());
       exit(1);
     }
 

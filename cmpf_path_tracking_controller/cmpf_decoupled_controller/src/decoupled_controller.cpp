@@ -23,8 +23,9 @@ namespace path_tracking_controller
 namespace decoupled_controller
 {
 DecoupledController::DecoupledController()
-  : latc_loader_("cmpf_decoupled_controller", "cmpf::path_tracking_controller::decoupled_controller::"
-                                              "LateralController")
+  : latc_loader_("cmpf_decoupled_controller",
+                 "cmpf::path_tracking_controller::decoupled_controller::"
+                 "LateralController")
 {
 }
 
@@ -64,10 +65,11 @@ void DecoupledController::initialize(const std::string& name, ros::NodeHandle nh
   }
   catch (const pluginlib::PluginlibException& ex)
   {
-    ROS_FATAL("Failed to create the %s lateral_controller, are you sure it is "
-              "properly registered and that the containing library is built? "
-              "Exception: %s",
-              lat_controller_id_.c_str(), ex.what());
+    ROS_FATAL(
+        "Failed to create the %s lateral_controller, are you sure it is "
+        "properly registered and that the containing library is built? "
+        "Exception: %s",
+        lat_controller_id_.c_str(), ex.what());
     exit(1);
   }
 }

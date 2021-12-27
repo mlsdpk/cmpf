@@ -43,8 +43,9 @@ public:
 
   void onInit() override
   {
-    NODELET_DEBUG("Initializing "
-                  "cmpf::behavior_tree::BTActionServerNodelet");
+    NODELET_DEBUG(
+        "Initializing "
+        "cmpf::behavior_tree::BTActionServerNodelet");
 
     // initialize node handlers
     nh_ = getNodeHandle();
@@ -81,10 +82,9 @@ public:
     }
 
     // create action server
-    action_server_ =
-        std::make_unique<ActionT>(private_nh_, "bt_server",
-                                  std::bind(&BTActionServerNodelet::actionServerCallBack, this, std::placeholders::_1),
-                                  false);
+    action_server_ = std::make_unique<ActionT>(
+        private_nh_, "bt_server", std::bind(&BTActionServerNodelet::actionServerCallBack, this, std::placeholders::_1),
+        false);
     action_server_->start();
   }
 
@@ -141,8 +141,9 @@ private:
     // if behavior tree path is empty, we will just use the default one
     if (file_path.empty())
     {
-      ROS_DEBUG("Empty behavior tree filename is given. Using the default behavior "
-                "tree.");
+      ROS_DEBUG(
+          "Empty behavior tree filename is given. Using the default behavior "
+          "tree.");
       file_path = bt_xml_file_path_;
     }
 
