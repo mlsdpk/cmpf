@@ -19,7 +19,6 @@ jobs:
         ROS_REPO: [main, testing]
     env:
       CCACHE_DIR: "${{ github.workspace }}/.ccache" # directory for ccache (and how we enable ccache in industrial_ci)
-      UPSTREAM_WORKSPACE: 'github:carla-simulator/ros-bridge#HEAD'
     steps:
       - uses: actions/checkout@v2 # clone target repository
       - uses: actions/cache@v2 # fetch/store the directory used by ccache before/after the ci run
