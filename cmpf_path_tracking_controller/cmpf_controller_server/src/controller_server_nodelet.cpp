@@ -25,18 +25,25 @@
 #include "cmpf_core/base_controller.hpp"
 #include "cmpf_msgs/TrajectoryAction.h"
 
-namespace cmpf {
-namespace path_tracking_controller {
+namespace cmpf
+{
+namespace path_tracking_controller
+{
+class ControllerServerNodelet : public nodelet::Nodelet
+{
+public:
+  ControllerServerNodelet()
+  {
+  }
 
-class ControllerServerNodelet : public nodelet::Nodelet {
- public:
-  ControllerServerNodelet() {}
-  virtual ~ControllerServerNodelet() {}
+  virtual ~ControllerServerNodelet()
+  {
+  }
 
-  void onInit() override {
-    NODELET_DEBUG(
-        "Initializing "
-        "cmpf::path_tracking_controller::ControllerServerNodelet");
+  void onInit() override
+  {
+    NODELET_DEBUG("Initializing "
+                  "cmpf::path_tracking_controller::ControllerServerNodelet");
 
     // initialize node handlers
     nh_ = getNodeHandle();
@@ -46,47 +53,45 @@ class ControllerServerNodelet : public nodelet::Nodelet {
     // ros params
     private_nh_.param("controller_frequency", controller_frequency_, 20.0);
 
-    private_nh_.param(
-        "controller_plugin", controller_plugin_,
-        std::string("cmpf_decoupled_controller/DecoupledController"));
+    private_nh_.param("controller_plugin", controller_plugin_,
+                      std::string("cmpf_decoupled_controller/DecoupledController"));
 
     // tfs
     tf_ = std::make_shared<tf2_ros::Buffer>(ros::Duration(10));
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_);
 
     // init pluginlib loader
-    bc_loader_ = std::make_unique<BaseControllerLoader>(
-        "cmpf_core", "cmpf::cmpf_core::BaseController");
+    bc_loader_ = std::make_unique<BaseControllerLoader>("cmpf_core", "cmpf::cmpf_core::BaseController");
 
     // create a controller
-    try {
+    try
+    {
       controller_ = bc_loader_->createUniqueInstance(controller_plugin_);
-      ROS_INFO("Created path_tracking_controller %s",
-               controller_plugin_.c_str());
-      controller_->initialize(bc_loader_->getName(controller_plugin_),
-                              private_nh_, tf_.get());
-    } catch (const pluginlib::PluginlibException& ex) {
-      ROS_FATAL(
-          "Failed to create the %s controller, are you sure it is properly "
-          "registered and that the containing library is built? Exception: %s",
-          controller_plugin_.c_str(), ex.what());
+      ROS_INFO("Created path_tracking_controller %s", controller_plugin_.c_str());
+      controller_->initialize(bc_loader_->getName(controller_plugin_), private_nh_, tf_.get());
+    }
+    catch (const pluginlib::PluginlibException& ex)
+    {
+      ROS_FATAL("Failed to create the %s controller, are you sure it is properly "
+                "registered and that the containing library is built? Exception: %s",
+                controller_plugin_.c_str(), ex.what());
       exit(1);
     }
 
     // create action server
     action_server_ = std::make_unique<ActionServer>(
-        private_nh_, "follow_trajectory",
-        std::bind(&ControllerServerNodelet::actionServerCallBack, this), false);
+        private_nh_, "follow_trajectory", std::bind(&ControllerServerNodelet::actionServerCallBack, this), false);
     action_server_->start();
   }
 
-  void actionServerCallBack() { action_server_->setSucceeded(); }
+  void actionServerCallBack()
+  {
+    action_server_->setSucceeded();
+  }
 
- private:
-  using ActionServer =
-      actionlib::SimpleActionServer<cmpf_msgs::TrajectoryAction>;
-  using BaseControllerLoader =
-      pluginlib::ClassLoader<cmpf_core::BaseController>;
+private:
+  using ActionServer = actionlib::SimpleActionServer<cmpf_msgs::TrajectoryAction>;
+  using BaseControllerLoader = pluginlib::ClassLoader<cmpf_core::BaseController>;
 
   // ROS related
   // node handles
@@ -112,5 +117,4 @@ class ControllerServerNodelet : public nodelet::Nodelet {
 }  // namespace cmpf
 
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(cmpf::path_tracking_controller::ControllerServerNodelet,
-                       nodelet::Nodelet)
+PLUGINLIB_EXPORT_CLASS(cmpf::path_tracking_controller::ControllerServerNodelet, nodelet::Nodelet)

@@ -23,20 +23,20 @@
 #include "cmpf_msgs/ComputeRouteToPoseAction.h"
 #include "cmpf_msgs/ComputeRouteToPoseActionGoal.h"
 
-namespace cmpf {
-namespace behavior_tree {
-
-class ComputeRouteActionClient
-    : public BTActionClientNode<cmpf_msgs::ComputeRouteToPoseAction> {
- public:
+namespace cmpf
+{
+namespace behavior_tree
+{
+class ComputeRouteActionClient : public BTActionClientNode<cmpf_msgs::ComputeRouteToPoseAction>
+{
+public:
   /**
    * @brief A constructor for cmpf::behavior_tree::ComputeRouteActionClient
    * @param xml_tag_name Name for the XML tag for this node
    * @param action_name Action name this node creates a client for
    * @param conf BT node configuration
    */
-  ComputeRouteActionClient(const std::string& xml_tag_name,
-                           const std::string& action_server_name,
+  ComputeRouteActionClient(const std::string& xml_tag_name, const std::string& action_server_name,
                            const BT::NodeConfiguration& conf);
 
   /**
@@ -55,12 +55,10 @@ class ComputeRouteActionClient
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing basic ports along with node-specific ports
    */
-  static BT::PortsList providedPorts() {
-    return providedBasicPorts(
-        {BT::InputPort<geometry_msgs::PoseStamped>(
-             "goal_pose", "Destination to plan the route"),
-         BT::OutputPort<nav_msgs::Path>("trajectory",
-                                        "Generated route in the map")});
+  static BT::PortsList providedPorts()
+  {
+    return providedBasicPorts({ BT::InputPort<geometry_msgs::PoseStamped>("goal_pose", "Destination to plan the route"),
+                                BT::OutputPort<nav_msgs::Path>("trajectory", "Generated route in the map") });
   }
 };
 

@@ -25,26 +25,28 @@
 #include <memory>
 #include <string>
 
-namespace cmpf {
-namespace behavior_tree {
-
+namespace cmpf
+{
+namespace behavior_tree
+{
 /**
  * @brief Abstract class representing an action-client based BT node
  * @tparam ActionT Type of action
  */
 template <class ActionT>
-class BTActionClientNode : public BT::ActionNodeBase {
- public:
-  BTActionClientNode(const std::string& xml_tag_name,
-                     const std::string& action_server_name,
+class BTActionClientNode : public BT::ActionNodeBase
+{
+public:
+  BTActionClientNode(const std::string& xml_tag_name, const std::string& action_server_name,
                      const BT::NodeConfiguration& conf)
-      : BT::ActionNodeBase(xml_tag_name, conf),
-        action_server_name_(action_server_name) {
+    : BT::ActionNodeBase(xml_tag_name, conf), action_server_name_(action_server_name)
+  {
     // get the global ns retrieved from blackboard
     std::string ns = config().blackboard->get<std::string>("ns");
 
     std::string remapped_action_name;
-    if (getInput("server_name", remapped_action_name)) {
+    if (getInput("server_name", remapped_action_name))
+    {
       action_server_name_ = remapped_action_name;
     }
     action_server_name_ = ns + action_server_name_;
@@ -54,7 +56,9 @@ class BTActionClientNode : public BT::ActionNodeBase {
 
   BTActionClientNode() = delete;
 
-  virtual ~BTActionClientNode() {}
+  virtual ~BTActionClientNode()
+  {
+  }
 
   /**
    * @brief Any subclass of BTActionClientNode that accepts parameters must
@@ -62,10 +66,10 @@ class BTActionClientNode : public BT::ActionNodeBase {
    * @param addition Additional ports to add to BT port list
    * @return BT::PortsList Containing basic ports along with node-specific ports
    */
-  static BT::PortsList providedBasicPorts(BT::PortsList addition) {
-    BT::PortsList basic = {
-        BT::InputPort<std::string>("server_name", "Action server name"),
-        BT::InputPort<std::chrono::milliseconds>("server_timeout")};
+  static BT::PortsList providedBasicPorts(BT::PortsList addition)
+  {
+    BT::PortsList basic = { BT::InputPort<std::string>("server_name", "Action server name"),
+                            BT::InputPort<std::chrono::milliseconds>("server_timeout") };
     basic.insert(addition.begin(), addition.end());
 
     return basic;
@@ -75,9 +79,12 @@ class BTActionClientNode : public BT::ActionNodeBase {
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing basic ports along with node-specific ports
    */
-  static BT::PortsList providedPorts() { return providedBasicPorts({}); }
+  static BT::PortsList providedPorts()
+  {
+    return providedBasicPorts({});
+  }
 
- protected:
+protected:
   ACTION_DEFINITION(ActionT)
   typedef actionlib::SimpleActionClient<ActionT> Client;
   typedef std::shared_ptr<Client> ClientPtr;
@@ -86,7 +93,7 @@ class BTActionClientNode : public BT::ActionNodeBase {
   std::string action_server_name_;
   Goal goal_;
   Result result_;
-  bool goal_updated_{false};
+  bool goal_updated_{ false };
 
   // Derived classes can override any of the following methods to hook into the
   // processing for the action: on_tick, on_wait_for_result, and on_success
@@ -96,13 +103,17 @@ class BTActionClientNode : public BT::ActionNodeBase {
    * Could do dynamic checks, such as getting updates to values on the
    * blackboard
    */
-  virtual void on_tick() {}
+  virtual void on_tick()
+  {
+  }
 
   /**
    * @brief Function to perform some user-defined operation after a timeout
    * waiting for a result that hasn't been received yet
    */
-  virtual void on_wait_for_result() {}
+  virtual void on_wait_for_result()
+  {
+  }
 
   /**
    * @brief Function to perform some user-defined operation upon successful
@@ -110,7 +121,8 @@ class BTActionClientNode : public BT::ActionNodeBase {
    * @return BT::NodeStatus Returns SUCCESS by default, user may override return
    * another value
    */
-  virtual BT::NodeStatus on_success() {
+  virtual BT::NodeStatus on_success()
+  {
     ROS_INFO("Success\"%s\" action server", action_server_name_.c_str());
     return BT::NodeStatus::SUCCESS;
   }
@@ -121,7 +133,10 @@ class BTActionClientNode : public BT::ActionNodeBase {
    * @return BT::NodeStatus Returns FAILURE by default, user may override return
    * another value
    */
-  virtual BT::NodeStatus on_aborted() { return BT::NodeStatus::FAILURE; }
+  virtual BT::NodeStatus on_aborted()
+  {
+    return BT::NodeStatus::FAILURE;
+  }
 
   /**
    * @brief Function to perform some user-defined operation when the action is
@@ -129,14 +144,18 @@ class BTActionClientNode : public BT::ActionNodeBase {
    * @return BT::NodeStatus Returns SUCCESS by default, user may override return
    * another value
    */
-  virtual BT::NodeStatus on_cancelled() { return BT::NodeStatus::SUCCESS; }
+  virtual BT::NodeStatus on_cancelled()
+  {
+    return BT::NodeStatus::SUCCESS;
+  }
 
- private:
+private:
   /**
    * @brief Create instance of an action client
    * @param action_server_name Action server name to create client for
    */
-  void createActionClient(const std::string& action_server_name) {
+  void createActionClient(const std::string& action_server_name)
+  {
     // Now that we have the ROS node to use, create the action client for this
     // BT action
     action_client_ = std::make_shared<Client>(action_server_name);
@@ -149,15 +168,20 @@ class BTActionClientNode : public BT::ActionNodeBase {
   /**
    * @brief Function to send new goal to action server
    */
-  void sendNewGoal() { ROS_INFO("Sending new goal..."); }
+  void sendNewGoal()
+  {
+    ROS_INFO("Sending new goal...");
+  }
 
   /**
    * @brief The main override required by a BT action
    * @return BT::NodeStatus Status of tick execution
    */
-  BT::NodeStatus tick() override {
+  BT::NodeStatus tick() override
+  {
     // first step to be done only at the beginning of the Action
-    if (status() == BT::NodeStatus::IDLE) {
+    if (status() == BT::NodeStatus::IDLE)
+    {
       // setting the status to RUNNING to notify the BT Loggers (if any)
       setStatus(BT::NodeStatus::RUNNING);
 
@@ -173,7 +197,10 @@ class BTActionClientNode : public BT::ActionNodeBase {
    * @brief The other (optional) override required by a BT action. In this case,
    * we make sure to cancel the ROS action if it is still running.
    */
-  void halt() override { setStatus(BT::NodeStatus::IDLE); }
+  void halt() override
+  {
+    setStatus(BT::NodeStatus::IDLE);
+  }
 };
 
 }  // namespace behavior_tree

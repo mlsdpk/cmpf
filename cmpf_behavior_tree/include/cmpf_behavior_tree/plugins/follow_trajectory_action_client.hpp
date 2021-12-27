@@ -20,20 +20,20 @@
 #include "cmpf_msgs/TrajectoryAction.h"
 #include "cmpf_msgs/TrajectoryMsg.h"
 
-namespace cmpf {
-namespace behavior_tree {
-
-class FollowTrajectoryActionClient
-    : public BTActionClientNode<cmpf_msgs::TrajectoryAction> {
- public:
+namespace cmpf
+{
+namespace behavior_tree
+{
+class FollowTrajectoryActionClient : public BTActionClientNode<cmpf_msgs::TrajectoryAction>
+{
+public:
   /**
    * @brief A constructor for cmpf::behavior_tree::FollowTrajectoryActionClient
    * @param xml_tag_name Name for the XML tag for this node
    * @param action_name Action name this node creates a client for
    * @param conf BT node configuration
    */
-  FollowTrajectoryActionClient(const std::string& xml_tag_name,
-                               const std::string& action_server_name,
+  FollowTrajectoryActionClient(const std::string& xml_tag_name, const std::string& action_server_name,
                                const BT::NodeConfiguration& conf);
 
   /**
@@ -51,9 +51,9 @@ class FollowTrajectoryActionClient
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing basic ports along with node-specific ports
    */
-  static BT::PortsList providedPorts() {
-    return providedBasicPorts({BT::InputPort<cmpf_msgs::TrajectoryMsg>(
-        "trajectory", "Trajectory to follow")});
+  static BT::PortsList providedPorts()
+  {
+    return providedBasicPorts({ BT::InputPort<cmpf_msgs::TrajectoryMsg>("trajectory", "Trajectory to follow") });
   }
 };
 

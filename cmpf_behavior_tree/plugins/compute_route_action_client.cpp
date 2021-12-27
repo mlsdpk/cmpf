@@ -19,20 +19,24 @@
 #include <memory>
 #include <string>
 
-namespace cmpf {
-namespace behavior_tree {
+namespace cmpf
+{
+namespace behavior_tree
+{
+ComputeRouteActionClient::ComputeRouteActionClient(const std::string& xml_tag_name,
+                                                   const std::string& action_server_name,
+                                                   const BT::NodeConfiguration& conf)
+  : BTActionClientNode<cmpf_msgs::ComputeRouteToPoseAction>(xml_tag_name, action_server_name, conf)
+{
+}
 
-ComputeRouteActionClient::ComputeRouteActionClient(
-    const std::string& xml_tag_name, const std::string& action_server_name,
-    const BT::NodeConfiguration& conf)
-    : BTActionClientNode<cmpf_msgs::ComputeRouteToPoseAction>(
-          xml_tag_name, action_server_name, conf) {}
-
-void ComputeRouteActionClient::on_tick() {
+void ComputeRouteActionClient::on_tick()
+{
   getInput("goal_pose", goal_.goal_pose);
 }
 
-BT::NodeStatus ComputeRouteActionClient::on_success() {
+BT::NodeStatus ComputeRouteActionClient::on_success()
+{
   setOutput("trajectory", result_.path);
   return BT::NodeStatus::SUCCESS;
 }
@@ -41,13 +45,11 @@ BT::NodeStatus ComputeRouteActionClient::on_success() {
 }  // namespace cmpf
 
 #include "behaviortree_cpp_v3/bt_factory.h"
-BT_REGISTER_NODES(factory) {
-  BT::NodeBuilder builder = [](const std::string& name,
-                               const BT::NodeConfiguration& config) {
-    return std::make_unique<cmpf::behavior_tree::ComputeRouteActionClient>(
-        name, "compute_route", config);
+BT_REGISTER_NODES(factory)
+{
+  BT::NodeBuilder builder = [](const std::string& name, const BT::NodeConfiguration& config) {
+    return std::make_unique<cmpf::behavior_tree::ComputeRouteActionClient>(name, "compute_route", config);
   };
 
-  factory.registerBuilder<cmpf::behavior_tree::ComputeRouteActionClient>(
-      "ComputeRoute", builder);
+  factory.registerBuilder<cmpf::behavior_tree::ComputeRouteActionClient>("ComputeRoute", builder);
 }

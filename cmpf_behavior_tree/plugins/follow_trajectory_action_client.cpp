@@ -19,26 +19,31 @@
 #include <memory>
 #include <string>
 
-namespace cmpf {
-namespace behavior_tree {
+namespace cmpf
+{
+namespace behavior_tree
+{
+FollowTrajectoryActionClient::FollowTrajectoryActionClient(const std::string& xml_tag_name,
+                                                           const std::string& action_server_name,
+                                                           const BT::NodeConfiguration& conf)
+  : BTActionClientNode<cmpf_msgs::TrajectoryAction>(xml_tag_name, action_server_name, conf)
+{
+}
 
-FollowTrajectoryActionClient::FollowTrajectoryActionClient(
-    const std::string& xml_tag_name, const std::string& action_server_name,
-    const BT::NodeConfiguration& conf)
-    : BTActionClientNode<cmpf_msgs::TrajectoryAction>(
-          xml_tag_name, action_server_name, conf) {}
-
-void FollowTrajectoryActionClient::on_tick() {
+void FollowTrajectoryActionClient::on_tick()
+{
   getInput("trajectory", goal_.trajectory);
 }
 
-void FollowTrajectoryActionClient::on_wait_for_result() {
+void FollowTrajectoryActionClient::on_wait_for_result()
+{
   // Grab the new path
   cmpf_msgs::TrajectoryMsg new_trajectory;
   getInput("trajectory", new_trajectory);
 
   // Check if it is not same with the current one
-  if (goal_.trajectory != new_trajectory) {
+  if (goal_.trajectory != new_trajectory)
+  {
     // the action server on the next loop iteration
     goal_.trajectory = new_trajectory;
     goal_updated_ = true;
@@ -49,13 +54,11 @@ void FollowTrajectoryActionClient::on_wait_for_result() {
 }  // namespace cmpf
 
 #include "behaviortree_cpp_v3/bt_factory.h"
-BT_REGISTER_NODES(factory) {
-  BT::NodeBuilder builder = [](const std::string& name,
-                               const BT::NodeConfiguration& config) {
-    return std::make_unique<cmpf::behavior_tree::FollowTrajectoryActionClient>(
-        name, "follow_trajectory", config);
+BT_REGISTER_NODES(factory)
+{
+  BT::NodeBuilder builder = [](const std::string& name, const BT::NodeConfiguration& config) {
+    return std::make_unique<cmpf::behavior_tree::FollowTrajectoryActionClient>(name, "follow_trajectory", config);
   };
 
-  factory.registerBuilder<cmpf::behavior_tree::FollowTrajectoryActionClient>(
-      "FollowTrajectory", builder);
+  factory.registerBuilder<cmpf::behavior_tree::FollowTrajectoryActionClient>("FollowTrajectory", builder);
 }

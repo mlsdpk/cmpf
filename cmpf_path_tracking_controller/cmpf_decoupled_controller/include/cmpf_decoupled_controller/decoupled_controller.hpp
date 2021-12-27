@@ -26,21 +26,26 @@
 #include "cmpf_core/base_controller.hpp"
 #include "cmpf_msgs/TrajectoryMsg.h"
 
-namespace cmpf {
-namespace path_tracking_controller {
-namespace decoupled_controller {
-
+namespace cmpf
+{
+namespace path_tracking_controller
+{
+namespace decoupled_controller
+{
 /**
  * @class LongitudinalController
  * @brief Abstract decoupled controller interface that acts as a virtual base
  * class for all longitudinal controller plugins
  */
-class LongitudinalController {
- public:
+class LongitudinalController
+{
+public:
   /**
    * @brief Virtual destructor
    */
-  virtual ~LongitudinalController() {}
+  virtual ~LongitudinalController()
+  {
+  }
 
   /**
    * @brief Method to initialize the controller
@@ -48,8 +53,7 @@ class LongitudinalController {
    * @param nh private nodehandler
    * @param tf tf transform
    */
-  virtual void initialize(const std::string& name, ros::NodeHandle nh,
-                          tf2_ros::Buffer* tf) = 0;
+  virtual void initialize(const std::string& name, ros::NodeHandle nh, tf2_ros::Buffer* tf) = 0;
 
   /**
    * @brief Method to compute vehicle longitudinal control commands (assuming
@@ -57,8 +61,7 @@ class LongitudinalController {
    * @param vehicle_control_cmd The best carla vehicle control commands to
    * follow the trajectory
    */
-  virtual void computeLongitudinalControl(
-      carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) = 0;
+  virtual void computeLongitudinalControl(carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) = 0;
 
   /**
    * @brief Method to cleanup the controller
@@ -71,12 +74,15 @@ class LongitudinalController {
  * @brief Abstract decoupled controller interface that acts as a virtual base
  * class for all lateral controller plugins
  */
-class LateralController {
- public:
+class LateralController
+{
+public:
   /**
    * @brief Virtual destructor
    */
-  virtual ~LateralController() {}
+  virtual ~LateralController()
+  {
+  }
 
   /**
    * @brief Method to initialize the controller
@@ -84,8 +90,7 @@ class LateralController {
    * @param nh private nodehandler
    * @param tf tf transform
    */
-  virtual void initialize(const std::string& name, ros::NodeHandle nh,
-                          tf2_ros::Buffer* tf) = 0;
+  virtual void initialize(const std::string& name, ros::NodeHandle nh, tf2_ros::Buffer* tf) = 0;
 
   /**
    * @brief Method to compute vehicle lateral control commands (assuming that
@@ -93,8 +98,7 @@ class LateralController {
    * @param vehicle_control_cmd The best carla vehicle control commands to
    * follow the trajectory
    */
-  virtual void computeLateralControl(
-      carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) = 0;
+  virtual void computeLateralControl(carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) = 0;
 
   /**
    * @brief Method to cleanup the controller
@@ -110,8 +114,9 @@ class LateralController {
  * This controller plugin decouples the vehicle control into longitudinal and
  * lateral control and internally calls individual plugins for each controller.
  */
-class DecoupledController : public cmpf_core::BaseController {
- public:
+class DecoupledController : public cmpf_core::BaseController
+{
+public:
   /**
    * @brief Constructor
    */
@@ -128,15 +133,13 @@ class DecoupledController : public cmpf_core::BaseController {
    * @param nh private nodehandler
    * @param tf tf transform
    */
-  virtual void initialize(const std::string& name, ros::NodeHandle nh,
-                          tf2_ros::Buffer* tf) override;
+  virtual void initialize(const std::string& name, ros::NodeHandle nh, tf2_ros::Buffer* tf) override;
 
   /**
    * @brief Set the trajectory to follow
    * @param trajectory The trajectory given by the local planner
    */
-  virtual bool setTrajectory(
-      const cmpf_msgs::TrajectoryMsg& trajectory) override;
+  virtual bool setTrajectory(const cmpf_msgs::TrajectoryMsg& trajectory) override;
 
   /**
    * @brief Method to compute vehicle control commands (assuming that current
@@ -144,10 +147,9 @@ class DecoupledController : public cmpf_core::BaseController {
    * @param vehicle_control_cmd The best carla vehicle control commands to
    * follow the trajectory
    */
-  virtual bool computeVehicleControlCommands(
-      carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) override;
+  virtual bool computeVehicleControlCommands(carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) override;
 
- protected:
+protected:
   // pluginlib loaders for longitudianl and lateral control
   //   pluginlib::ClassLoader<LongitudinalController> lgc_loader_;
   pluginlib::ClassLoader<LateralController> latc_loader_;

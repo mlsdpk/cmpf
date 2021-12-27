@@ -27,18 +27,24 @@
 
 #include "cmpf_msgs/NavigateToPoseAction.h"
 
-namespace cmpf {
-namespace behavior_tree {
+namespace cmpf
+{
+namespace behavior_tree
+{
+class BTActionServerNodelet : public nodelet::Nodelet
+{
+public:
+  BTActionServerNodelet()
+  {
+  }
+  virtual ~BTActionServerNodelet()
+  {
+  }
 
-class BTActionServerNodelet : public nodelet::Nodelet {
- public:
-  BTActionServerNodelet() {}
-  virtual ~BTActionServerNodelet() {}
-
-  void onInit() override {
-    NODELET_DEBUG(
-        "Initializing "
-        "cmpf::behavior_tree::BTActionServerNodelet");
+  void onInit() override
+  {
+    NODELET_DEBUG("Initializing "
+                  "cmpf::behavior_tree::BTActionServerNodelet");
 
     // initialize node handlers
     nh_ = getNodeHandle();
@@ -54,13 +60,13 @@ class BTActionServerNodelet : public nodelet::Nodelet {
     private_nh_.param("bt_loop_frequency", bt_loop_frequency_, 100.0);
 
     // get all the BT plugins
-    const std::vector<std::string> bt_plugin_libs = {
-        "cmpf_compute_route_action_client_bt_node",
-        "cmpf_follow_trajectory_action_client_bt_node"};
+    const std::vector<std::string> bt_plugin_libs = { "cmpf_compute_route_action_client_bt_node",
+                                                      "cmpf_follow_trajectory_action_client_bt_node" };
 
     // register the BT plugin nodes in BehaviorTreeFactory
     BT::SharedLibrary loader;
-    for (const auto& p : bt_plugin_libs) {
+    for (const auto& p : bt_plugin_libs)
+    {
       factory_.registerFromPlugin(loader.getOSName(p));
     }
 
@@ -69,26 +75,28 @@ class BTActionServerNodelet : public nodelet::Nodelet {
     black_board_->set<std::string>("ns", nh_.getNamespace());
 
     // load the default behavior tree
-    if (!loadBehaviorTree(bt_xml_file_path_)) {
+    if (!loadBehaviorTree(bt_xml_file_path_))
+    {
       exit(1);
     }
 
     // create action server
-    action_server_ = std::make_unique<ActionT>(
-        private_nh_, "bt_server",
-        std::bind(&BTActionServerNodelet::actionServerCallBack, this,
-                  std::placeholders::_1),
-        false);
+    action_server_ =
+        std::make_unique<ActionT>(private_nh_, "bt_server",
+                                  std::bind(&BTActionServerNodelet::actionServerCallBack, this, std::placeholders::_1),
+                                  false);
     action_server_->start();
   }
 
-  void actionServerCallBack(const cmpf_msgs::NavigateToPoseGoalConstPtr& goal) {
+  void actionServerCallBack(const cmpf_msgs::NavigateToPoseGoalConstPtr& goal)
+  {
     bool success = true;
     // get the goal and process it
     ROS_INFO("Reveived new GOAL.");
 
     // load the goal behavior tree
-    if (!loadBehaviorTree(goal->behavior_tree)) {
+    if (!loadBehaviorTree(goal->behavior_tree))
+    {
       // if we cannot load the behavior tree, cancel the goal request
       ROS_INFO("GOAL aborted.");
       action_server_->setAborted();
@@ -98,8 +106,10 @@ class BTActionServerNodelet : public nodelet::Nodelet {
     BT::NodeStatus result = BT::NodeStatus::RUNNING;
 
     ros::Rate loop_rate(bt_loop_frequency_);
-    while (ros::ok() && result == BT::NodeStatus::RUNNING) {
-      if (action_server_->isPreemptRequested()) {
+    while (ros::ok() && result == BT::NodeStatus::RUNNING)
+    {
+      if (action_server_->isPreemptRequested())
+      {
         ROS_INFO("GOAL canceled.");
         action_server_->setPreempted();
         tree_.rootNode()->halt();
@@ -111,33 +121,39 @@ class BTActionServerNodelet : public nodelet::Nodelet {
       loop_rate.sleep();
     }
 
-    if (success) {
+    if (success)
+    {
       ROS_INFO("GOAL succeeded.");
       action_server_->setSucceeded();
-    } else if (result == BT::NodeStatus::FAILURE) {
+    }
+    else if (result == BT::NodeStatus::FAILURE)
+    {
       ROS_INFO("GOAL failed.");
     }
   }
 
- private:
-  using ActionT =
-      actionlib::SimpleActionServer<cmpf_msgs::NavigateToPoseAction>;
+private:
+  using ActionT = actionlib::SimpleActionServer<cmpf_msgs::NavigateToPoseAction>;
 
-  bool loadBehaviorTree(const std::string& bt_xml_file_path) {
+  bool loadBehaviorTree(const std::string& bt_xml_file_path)
+  {
     auto file_path = bt_xml_file_path;
     // if behavior tree path is empty, we will just use the default one
-    if (file_path.empty()) {
-      ROS_DEBUG(
-          "Empty behavior tree filename is given. Using the default behavior "
-          "tree.");
+    if (file_path.empty())
+    {
+      ROS_DEBUG("Empty behavior tree filename is given. Using the default behavior "
+                "tree.");
       file_path = bt_xml_file_path_;
     }
 
     // Load the Behavior Tree from the XML input
-    try {
+    try
+    {
       ROS_INFO("Loading behavior tree from %s", file_path.c_str());
       tree_ = factory_.createTreeFromFile(file_path, black_board_);
-    } catch (const std::exception& ex) {
+    }
+    catch (const std::exception& ex)
+    {
       ROS_ERROR("Failed to load the behavior tree. Exception: %s", ex.what());
       return false;
     }
@@ -171,5 +187,4 @@ class BTActionServerNodelet : public nodelet::Nodelet {
 }  // namespace cmpf
 
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(cmpf::behavior_tree::BTActionServerNodelet,
-                       nodelet::Nodelet)
+PLUGINLIB_EXPORT_CLASS(cmpf::behavior_tree::BTActionServerNodelet, nodelet::Nodelet)
