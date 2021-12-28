@@ -13,14 +13,14 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   TrajectoryMsg.msg
+  Lanelet2MapBin.msg
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  Lanelet2Map.srv
+)
 
 ## Generate actions in the 'action' folder
 add_action_files(

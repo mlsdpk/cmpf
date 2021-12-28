@@ -23,11 +23,13 @@ set(${PROJECT_NAME}_CATKIN_DEPS
 find_package(catkin REQUIRED COMPONENTS ${${PROJECT_NAME}_CATKIN_DEPS})
 
 catkin_package(
+  INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}_nodelet
   CATKIN_DEPENDS ${${PROJECT_NAME}_CATKIN_DEPS}
 )
 
 include_directories( 
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
