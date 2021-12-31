@@ -27,6 +27,7 @@
 
 #include "cmpf_msgs/Lanelet2Map.h"
 #include "lanelet2_map_server/map_utils.hpp"
+#include "lanelet2_map_server/lanelet2_map_visualizer.hpp"
 
 namespace cmpf
 {
@@ -51,8 +52,11 @@ public:
 
     // initialize node handlers
     nh_ = getNodeHandle();
-    mt_nh_ = getMTPrivateNodeHandle();
-    private_nh_ = getPrivateNodeHandle();
+    mt_prv_nh_ = getMTPrivateNodeHandle();
+    prv_nh_ = getPrivateNodeHandle();
+
+    // ros parameters
+    prv_nh_.param<double>("map_markers_publish_frequency", map_markers_publish_frequency_, 1.0);
 
     // tfs
     tf_ = std::make_shared<tf2_ros::Buffer>(ros::Duration(10));
@@ -79,13 +83,19 @@ public:
       exit(1);
     }
 
-    // lanelet::ConstLanelets all_lanelets = lanelet::utils::query::laneletLayer(viz_lanelet_map);
-    // lanelet::ConstLanelets road_lanelets = lanelet::utils::query::roadLanelets(all_lanelets);
-    // lanelet::ConstLanelets crosswalk_lanelets = lanelet::utils::query::crosswalkLanelets(all_lanelets);
+    // initialize visualizer
+    map_visualizer_ = std::make_shared<Lanelet2MapVisualizer>(lanelet2_map_, mt_prv_nh_, prv_nh_);
 
-    map_request_srv_ = mt_nh_.advertiseService("get_lanelet2_map", &Lanelet2MapServerNodelet::mapRequestService, this);
+    // service server
+    map_request_srv_ =
+        mt_prv_nh_.advertiseService("get_lanelet2_map", &Lanelet2MapServerNodelet::mapRequestService, this);
+
+    // timer
+    map_markers_pub_timer_ = mt_prv_nh_.createWallTimer(ros::WallDuration(1.0 / map_markers_publish_frequency_),
+                                                        &Lanelet2MapServerNodelet::mapMarkersPublisherTimerCB, this);
   }
 
+private:
   bool mapRequestService(cmpf_msgs::Lanelet2MapRequest& req, cmpf_msgs::Lanelet2MapResponse& res)
   {
     ROS_INFO("Lanelet2 map request received.");
@@ -96,15 +106,16 @@ public:
     return true;
   }
 
-private:
+  void mapMarkersPublisherTimerCB(const ros::WallTimerEvent& event)
+  {
+    map_visualizer_->renderMap();
+  }
+
   // ROS related
   // node handles
   ros::NodeHandle nh_;
-  ros::NodeHandle mt_nh_;
-  ros::NodeHandle private_nh_;
-
-  // Publisher
-  ros::Publisher map_markers_publisher_;
+  ros::NodeHandle mt_prv_nh_;
+  ros::NodeHandle prv_nh_;
 
   // Service server
   ros::ServiceServer map_request_srv_;
@@ -113,8 +124,14 @@ private:
   std::shared_ptr<tf2_ros::Buffer> tf_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
+  // lanelet2 related
   lanelet::LaneletMapPtr lanelet2_map_;
   std::string map_file_name_;
+
+  // lanelet2 map markers related
+  std::shared_ptr<Lanelet2MapVisualizer> map_visualizer_;
+  ros::WallTimer map_markers_pub_timer_;
+  double map_markers_publish_frequency_;
 };
 
 }  // namespace common

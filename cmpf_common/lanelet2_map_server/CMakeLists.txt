@@ -9,6 +9,7 @@ endif()
 set(${PROJECT_NAME}_CATKIN_DEPS
   roscpp 
   cmpf_msgs
+  visualization_msgs
   tf2
   tf2_ros
   lanelet2_core
@@ -36,6 +37,7 @@ include_directories(
 # Controller nodelet
 add_library(${PROJECT_NAME}_nodelet
   src/lanelet2_map_server_nodelet.cpp
+  src/lanelet2_map_visualizer.cpp
 )
 add_dependencies(${PROJECT_NAME}_nodelet 
   ${${PROJECT_NAME}_EXPORTED_TARGETS} 

@@ -14,6 +14,7 @@
   
   <depend>roscpp</depend>
   <depend>cmpf_msgs</depend>
+  <depend>visualization_msgs</depend>
   <depend>nodelet</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
