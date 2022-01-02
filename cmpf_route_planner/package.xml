@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>cmpf_route_planner</name>
+  <version>1.0.0</version>
+  <description>The cmpf_route_planner package</description>
+
+  <maintainer email="mlsdphonethk@gmail.com">Phone Thiha Kyaw</maintainer>
+
+  <license>Apache-2.0</license>
+
+  <author email="mlsdphonethk@gmail.com">Phone Thiha Kyaw</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <depend>roscpp</depend>
+  <depend>cmpf_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nodelet</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>lanelet2_map_server</depend>
+  <depend>lanelet2_core</depend>
+  <depend>lanelet2_io</depend>
+  <depend>lanelet2_maps</depend>
+  <depend>lanelet2_projection</depend>
+  <depend>lanelet2_routing</depend>
+  <depend>lanelet2_traffic_rules</depend>
+  <depend>lanelet2_validation</depend>
+
+  <export>
+    <nodelet plugin="${prefix}/cmpf_route_planner_nodelet_nodelet_plugin.xml" />
+  </export>
+</package>

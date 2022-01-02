@@ -1,0 +1,6 @@
+<library path="lib/libcmpf_route_planner_nodelet">
+  <class 
+    name="cmpf_route_planner/RoutePlannerNodelet" 
+    type="cmpf::route_planner::RoutePlannerNodelet" 
+    base_class_type="nodelet::Nodelet"/>
+</library>

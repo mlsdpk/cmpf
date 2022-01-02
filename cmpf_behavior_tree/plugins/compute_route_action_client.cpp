@@ -37,6 +37,7 @@ void ComputeRouteActionClient::on_tick()
 
 BT::NodeStatus ComputeRouteActionClient::on_success()
 {
+  ROS_INFO("[cmpf_behavior_tree] Success %s action server", action_server_name_.c_str());
   setOutput("trajectory", result_.path);
   return BT::NodeStatus::SUCCESS;
 }

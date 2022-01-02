@@ -51,7 +51,7 @@ public:
     }
     action_server_name_ = ns + action_server_name_;
     createActionClient(action_server_name_);
-    ROS_INFO("\"%s\" BtActionNode initialized", xml_tag_name.c_str());
+    ROS_INFO("[cmpf_behavior_tree] %s BtActionNode initialized", xml_tag_name.c_str());
   }
 
   BTActionClientNode() = delete;
@@ -94,6 +94,7 @@ protected:
   Goal goal_;
   Result result_;
   bool goal_updated_{ false };
+  ros::Time goal_sent_init_time_;
 
   // Derived classes can override any of the following methods to hook into the
   // processing for the action: on_tick, on_wait_for_result, and on_success
@@ -123,7 +124,7 @@ protected:
    */
   virtual BT::NodeStatus on_success()
   {
-    ROS_INFO("Success\"%s\" action server", action_server_name_.c_str());
+    ROS_INFO("[cmpf_behavior_tree] Success %s action server", action_server_name_.c_str());
     return BT::NodeStatus::SUCCESS;
   }
 
@@ -135,6 +136,7 @@ protected:
    */
   virtual BT::NodeStatus on_aborted()
   {
+    ROS_INFO("[cmpf_behavior_tree] Aborted %s action server", action_server_name_.c_str());
     return BT::NodeStatus::FAILURE;
   }
 
@@ -146,6 +148,7 @@ protected:
    */
   virtual BT::NodeStatus on_cancelled()
   {
+    ROS_INFO("[cmpf_behavior_tree] Canceled %s action server", action_server_name_.c_str());
     return BT::NodeStatus::SUCCESS;
   }
 
@@ -161,7 +164,7 @@ private:
     action_client_ = std::make_shared<Client>(action_server_name);
 
     // Make sure the server is actually there before continuing
-    ROS_INFO("Waiting for \"%s\" action server", action_server_name.c_str());
+    ROS_INFO("[cmpf_behavior_tree] Waiting for %s action server...", action_server_name.c_str());
     action_client_->waitForServer();
   }
 
@@ -170,7 +173,9 @@ private:
    */
   void sendNewGoal()
   {
-    ROS_INFO("Sending new goal...");
+    ROS_INFO("[cmpf_behavior_tree] Sending new goal...");
+    action_client_->sendGoal(goal_);
+    goal_sent_init_time_ = ros::Time::now();
   }
 
   /**
@@ -190,7 +195,46 @@ private:
 
       sendNewGoal();
     }
-    return on_success();
+
+    try
+    {
+      // current state of the goal
+      actionlib::SimpleClientGoalState::StateEnum goal_state = action_client_->getState().state_;
+
+      if (ros::ok() && (goal_state == actionlib::SimpleClientGoalState::StateEnum::PENDING ||
+                        goal_state == actionlib::SimpleClientGoalState::StateEnum::ACTIVE))
+      {
+        on_wait_for_result();
+
+        return BT::NodeStatus::RUNNING;
+      }
+    }
+    catch (const std::runtime_error& ex)
+    {
+      ROS_ERROR("[cmpf_behavior_tree] Error occurs during on tick(). Exception: %s", ex.what());
+      exit(1);
+    }
+
+    BT::NodeStatus status;
+    switch (action_client_->getState().state_)
+    {
+      case actionlib::SimpleClientGoalState::StateEnum::SUCCEEDED:
+        status = on_success();
+        break;
+
+      case actionlib::SimpleClientGoalState::StateEnum::ABORTED:
+        status = on_aborted();
+        break;
+
+      case actionlib::SimpleClientGoalState::StateEnum::PREEMPTED:
+        status = on_cancelled();
+        break;
+
+      default:
+        throw std::logic_error("BtActionNode::Tick: invalid status value");
+    }
+
+    return status;
   }
 
   /**

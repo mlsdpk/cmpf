@@ -55,8 +55,8 @@ public:
     // ros parameters
     // get default bt xml file or retrieve from parameter server
     std::string pkg_path = ros::package::getPath("cmpf_behavior_tree");
-    bt_xml_file_path_ = pkg_path + "/behavior_trees/default_bt.xml";
-    private_nh_.param("bt_xml_file_path", bt_xml_file_path_, bt_xml_file_path_);
+    bt_xml_default_file_path_ = pkg_path + "/behavior_trees/default_bt.xml";
+    private_nh_.param("bt_xml_file_path", bt_xml_file_path_, bt_xml_default_file_path_);
 
     private_nh_.param("bt_loop_frequency", bt_loop_frequency_, 100.0);
 
@@ -90,15 +90,22 @@ public:
 
   void actionServerCallBack(const cmpf_msgs::NavigateToPoseGoalConstPtr& goal)
   {
-    bool success = true;
     // get the goal and process it
-    ROS_INFO("Reveived new GOAL.");
+    ROS_INFO("[cmpf_behavior_tree] Reveived new GOAL.");
 
+    // if the goal behavior tree path is empty, we use the previously loaded tree but warn the user
+    if (goal->behavior_tree.empty())
+    {
+      ROS_WARN(
+          "[cmpf_behavior_tree] Goal contains empty behavior tree path. Using the previously loaded behavior tree from "
+          "%s...",
+          bt_xml_file_path_.c_str());
+    }
     // load the goal behavior tree
-    if (!loadBehaviorTree(goal->behavior_tree))
+    else if (!loadBehaviorTree(goal->behavior_tree))
     {
       // if we cannot load the behavior tree, cancel the goal request
-      ROS_INFO("GOAL aborted.");
+      ROS_INFO("[cmpf_behavior_tree] GOAL aborted.");
       action_server_->setAborted();
       return;
     }
@@ -110,10 +117,9 @@ public:
     {
       if (action_server_->isPreemptRequested())
       {
-        ROS_INFO("GOAL canceled.");
+        ROS_INFO("[cmpf_behavior_tree] GOAL canceled.");
         action_server_->setPreempted();
         tree_.rootNode()->halt();
-        success = false;
         break;
       }
 
@@ -121,14 +127,20 @@ public:
       loop_rate.sleep();
     }
 
-    if (success)
+    switch (result)
     {
-      ROS_INFO("GOAL succeeded.");
-      action_server_->setSucceeded();
-    }
-    else if (result == BT::NodeStatus::FAILURE)
-    {
-      ROS_INFO("GOAL failed.");
+      case BT::NodeStatus::SUCCESS:
+        ROS_INFO("[cmpf_behavior_tree] GOAL succeeded.");
+        action_server_->setSucceeded();
+        break;
+
+      case BT::NodeStatus::FAILURE:
+        ROS_INFO("[cmpf_behavior_tree] GOAL failed.");
+        action_server_->setAborted();
+        break;
+
+      default:
+        break;
     }
   }
 
@@ -141,23 +153,24 @@ private:
     // if behavior tree path is empty, we will just use the default one
     if (file_path.empty())
     {
-      ROS_DEBUG(
-          "Empty behavior tree filename is given. Using the default behavior "
+      ROS_WARN(
+          "[cmpf_behavior_tree] Empty behavior tree filename is given. Using the default behavior "
           "tree.");
-      file_path = bt_xml_file_path_;
+      file_path = bt_xml_default_file_path_;
     }
 
     // Load the Behavior Tree from the XML input
     try
     {
-      ROS_INFO("Loading behavior tree from %s", file_path.c_str());
+      ROS_INFO("[cmpf_behavior_tree] Loading behavior tree from %s", file_path.c_str());
       tree_ = factory_.createTreeFromFile(file_path, black_board_);
     }
     catch (const std::exception& ex)
     {
-      ROS_ERROR("Failed to load the behavior tree. Exception: %s", ex.what());
+      ROS_ERROR("[cmpf_behavior_tree] Failed to load the behavior tree. Exception: %s", ex.what());
       return false;
     }
+    bt_xml_file_path_ = file_path;
     return true;
   }
 
@@ -168,7 +181,7 @@ private:
   ros::NodeHandle private_nh_;
 
   // params
-  std::string bt_xml_file_path_;
+  std::string bt_xml_default_file_path_, bt_xml_file_path_;
   double bt_loop_frequency_;
 
   // main action server
