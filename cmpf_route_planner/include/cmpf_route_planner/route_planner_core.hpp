@@ -53,6 +53,8 @@ public:
   bool planRoute(nav_msgs::Path& route, const geometry_msgs::Pose& start_pose, const geometry_msgs::Pose& goal_pose);
 
 private:
+  std::vector<lanelet::Id> getRoute(const std::vector<lanelet::Id>& from_id, const std::vector<lanelet::Id>& to_id);
+  std::size_t getNearestLaneletIdx(const lanelet::ConstLanelets& lanelets, const lanelet::Point3d& point);
   lanelet::Lanelet getNearestLanelet(const lanelet::BasicPoint2d& point);
 
   lanelet::LaneletMapPtr lanelet2_map_;

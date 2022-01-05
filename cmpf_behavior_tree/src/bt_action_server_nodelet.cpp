@@ -75,12 +75,6 @@ public:
     black_board_ = BT::Blackboard::create();
     black_board_->set<std::string>("ns", nh_.getNamespace());
 
-    // load the default behavior tree
-    if (!loadBehaviorTree(bt_xml_file_path_))
-    {
-      exit(1);
-    }
-
     // create action server
     action_server_ = std::make_unique<ActionT>(
         private_nh_, "bt_server", std::bind(&BTActionServerNodelet::actionServerCallBack, this, std::placeholders::_1),
@@ -93,13 +87,17 @@ public:
     // get the goal and process it
     ROS_INFO("[cmpf_behavior_tree] Reveived new GOAL.");
 
-    // if the goal behavior tree path is empty, we use the previously loaded tree but warn the user
+    // if the goal behavior tree path is empty, we use the default behavior tree but warn the user
     if (goal->behavior_tree.empty())
     {
       ROS_WARN(
-          "[cmpf_behavior_tree] Goal contains empty behavior tree path. Using the previously loaded behavior tree from "
+          "[cmpf_behavior_tree] Goal contains empty behavior tree path. Using the default behavior tree from "
           "%s...",
           bt_xml_file_path_.c_str());
+      if (!loadBehaviorTree(bt_xml_file_path_))
+      {
+        exit(1);
+      }
     }
     // load the goal behavior tree
     else if (!loadBehaviorTree(goal->behavior_tree))
@@ -109,6 +107,9 @@ public:
       action_server_->setAborted();
       return;
     }
+
+    // set goal pose to blackboard
+    black_board_->set<geometry_msgs::PoseStamped>("goal_pose", goal->pose);
 
     BT::NodeStatus result = BT::NodeStatus::RUNNING;
 
@@ -149,28 +150,18 @@ private:
 
   bool loadBehaviorTree(const std::string& bt_xml_file_path)
   {
-    auto file_path = bt_xml_file_path;
-    // if behavior tree path is empty, we will just use the default one
-    if (file_path.empty())
-    {
-      ROS_WARN(
-          "[cmpf_behavior_tree] Empty behavior tree filename is given. Using the default behavior "
-          "tree.");
-      file_path = bt_xml_default_file_path_;
-    }
-
     // Load the Behavior Tree from the XML input
     try
     {
-      ROS_INFO("[cmpf_behavior_tree] Loading behavior tree from %s", file_path.c_str());
-      tree_ = factory_.createTreeFromFile(file_path, black_board_);
+      ROS_INFO("[cmpf_behavior_tree] Loading behavior tree from %s", bt_xml_file_path.c_str());
+      tree_ = factory_.createTreeFromFile(bt_xml_file_path, black_board_);
     }
     catch (const std::exception& ex)
     {
       ROS_ERROR("[cmpf_behavior_tree] Failed to load the behavior tree. Exception: %s", ex.what());
       return false;
     }
-    bt_xml_file_path_ = file_path;
+
     return true;
   }
 

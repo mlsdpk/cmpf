@@ -10,7 +10,12 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <export>
-    <metapackage/>
-  </export>
+  <exec_depend>cmpf_behavior_tree</exec_depend>
+  <exec_depend>cmpf_bringup</exec_depend>
+  <exec_depend>cmpf_common</exec_depend>
+  <exec_depend>cmpf_core</exec_depend>
+  <exec_depend>cmpf_msgs</exec_depend>
+  <exec_depend>cmpf_path_tracking_controller</exec_depend>
+  <exec_depend>cmpf_route_planner</exec_depend>
+  <export><metapackage/></export>
 </package>

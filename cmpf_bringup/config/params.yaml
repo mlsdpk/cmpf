@@ -4,3 +4,7 @@ path_tracking_controller:
   DecoupledController:
     longitudinal_controller_plugin: "cmpf_decoupled_controller/PID"
     lateral_controller_plugin: "cmpf_decoupled_controller/PurePursuit"
+
+route_planner:
+  publish_route: true
+  route_publish_frequency: 10.0

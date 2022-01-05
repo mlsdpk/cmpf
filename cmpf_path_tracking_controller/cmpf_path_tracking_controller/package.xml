@@ -10,6 +10,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <exec_depend>cmpf_decoupled_controller</exec_depend>
+  <exec_depend>cmpf_controller_server</exec_depend>
   <export>
     <metapackage/>
   </export>

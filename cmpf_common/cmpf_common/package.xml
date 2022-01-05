@@ -10,6 +10,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <exec_depend>lanelet2_map_server</exec_depend>
   <export>
     <metapackage/>
   </export>

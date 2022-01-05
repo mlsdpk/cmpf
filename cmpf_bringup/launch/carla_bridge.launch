@@ -10,7 +10,7 @@
     <arg name='fixed_delta_seconds' default='0.05'/><!-- frequency of the carla ticks -->
 
     <!-- The ros bridge -->
-    <!-- <include file="$(find carla_ros_bridge)/launch/carla_ros_bridge.launch">
+    <include file="$(find carla_ros_bridge)/launch/carla_ros_bridge.launch">
         <arg name='host' value='$(arg host)'/>
         <arg name='port' value='$(arg port)'/>
         <arg name='town' value='$(arg town)'/>
@@ -18,60 +18,22 @@
         <arg name='passive' value='$(arg passive)'/>
         <arg name='synchronous_mode_wait_for_vehicle_control_command' value='$(arg synchronous_mode_wait_for_vehicle_control_command)'/>
         <arg name='fixed_delta_seconds' value='$(arg fixed_delta_seconds)'/>
-    </include> -->
+    </include>
 
     <arg name="role_name" default="ego_vehicle"/> <!-- role name of the ego vehicle (used for identification in many nodes) -->
     <arg name='spawn_point' default='127.4,-195.4,2,0,0,180'/> <!-- fixed spawn point, set to "" for a random spawn point -->
 
     <!-- the ego vehicle, that will be controlled by the carla_ad_agent -->
-    <!-- <include file="$(find carla_spawn_objects)/launch/carla_example_ego_vehicle.launch">
+    <include file="$(find carla_spawn_objects)/launch/carla_example_ego_vehicle.launch">
         <arg name="objects_definition_file" value='$(find cmpf_bringup)/config/objects.json'/>
         <arg name='role_name' value='$(arg role_name)'/>
         <arg name="spawn_point_ego_vehicle" value="$(arg spawn_point)"/>
         <arg name="spawn_sensors_only" value="false"/>
-    </include> -->
-
-    <arg name="nodelet_manager" default="cmpf_nodelet_manager"/>
-
-    <!-- lanelet2 map file path -->
-    <arg name="lanelet2_map_file_path" value="$(find cmpf_bringup)/map/Town01.osm"/>
-
-    <group ns="cmpf">
-        <rosparam file="$(find cmpf_bringup)/config/params.yaml" command="load"/>
-        <node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager)" args="manager" output="screen"/>
-
-        <!-- lanelet2 map server nodelet -->
-        <node 
-            pkg="nodelet" 
-            type="nodelet" 
-            name="lanelet2_map_server" 
-            args="load cmpf_common/Lanelet2MapServerNodelet $(arg nodelet_manager) $(arg lanelet2_map_file_path)"/>
-
-        <!-- route planner nodelet -->
-        <node 
-            pkg="nodelet" 
-            type="nodelet" 
-            name="route_planner" 
-            args="load cmpf_route_planner/RoutePlannerNodelet $(arg nodelet_manager)"/>           
-
-        <!-- controller server nodelet -->
-        <!-- <node 
-            pkg="nodelet" 
-            type="nodelet" 
-            name="path_tracking_controller" 
-            args="load cmpf_controller_server/ControllerServerNodelet $(arg nodelet_manager)"/> -->
-
-        <!-- bt server nodelet -->
-        <node 
-            pkg="nodelet" 
-            type="nodelet" 
-            name="behavior_tree" 
-            args="load cmpf_behavior_tree/BTActionServerNodelet $(arg nodelet_manager)"/>
-    </group>
+    </include>
 
     <!-- Rviz visualization-->
-    <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d $(find cmpf_bringup)/config/test.rviz" required="true" output="screen">
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find cmpf_bringup)/config/test.rviz" required="true" output="screen">
         <remap from="carla/ego_vehicle/spectator_pose" to="/carla/ego_vehicle/rgb_view/control/set_transform"/>
-    </node> -->
+    </node>
 
 </launch> 
