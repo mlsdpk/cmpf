@@ -61,6 +61,7 @@ public:
     private_nh_ = getPrivateNodeHandle();
 
     // ros parameters
+    private_nh_.param<double>("route_resolution", route_resolution_, 2.0);
     private_nh_.param<double>("route_publish_frequency", route_publish_frequency_, 10.0);
     private_nh_.param<bool>("publish_route", publish_route_, false);
 
@@ -72,7 +73,7 @@ public:
     map_client_thread_ = std::thread(&RoutePlannerNodelet::createServiceClient, this);
 
     // initialize route planner
-    route_planner_ = std::make_shared<RoutePlanner>();
+    route_planner_ = std::make_shared<RoutePlanner>(route_resolution_);
 
     // create action server
     action_server_ = std::make_unique<ActionT>(
@@ -176,6 +177,7 @@ private:
   ros::NodeHandle private_nh_;
 
   // params
+  double route_resolution_;
   double route_publish_frequency_;
   bool publish_route_{ false };
 

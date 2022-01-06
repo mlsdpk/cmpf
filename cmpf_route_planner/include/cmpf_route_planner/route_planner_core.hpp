@@ -37,7 +37,7 @@ namespace route_planner
 class RoutePlanner
 {
 public:
-  RoutePlanner();
+  RoutePlanner(double route_resolution);
   ~RoutePlanner();
 
   void updateLanelet2Map(const cmpf_msgs::Lanelet2MapBin& map_bin_msg);
@@ -55,8 +55,40 @@ public:
 private:
   std::vector<lanelet::Id> getRoute(const std::vector<lanelet::Id>& from_id, const std::vector<lanelet::Id>& to_id);
   std::size_t getNearestLaneletIdx(const lanelet::ConstLanelets& lanelets, const lanelet::Point3d& point);
-  lanelet::Lanelet getNearestLanelet(const lanelet::BasicPoint2d& point);
+  lanelet::Lanelet getNearestLanelet(const lanelet::Point3d& point);
+  geometry_msgs::PoseStamped fromPoseToPoseStamped(const geometry_msgs::Pose& p);
+  lanelet::Point3d fromPoseStampedToLLPoint3D(const geometry_msgs::PoseStamped& ps);
+  std::pair<size_t, size_t> findNearestIndexPair(const std::vector<double>& accumulated_lengths,
+                                                 const double target_length);
+  std::vector<lanelet::BasicPoint3d> resamplePoints(const lanelet::ConstLineString3d& line_string,
+                                                    const unsigned int num_segments);
+  lanelet::LineString3d generateCenterline(const lanelet::ConstLanelet& lanelet_obj);
 
+  /**
+   * Find element in iterator with the minimum calculated value
+   */
+  template <typename Iter, typename Getter>
+  Iter min_by(Iter begin, Iter end, Getter getCompareVal)
+  {
+    if (begin == end)
+    {
+      return end;
+    }
+    auto lowest = getCompareVal(*begin);
+    Iter lowest_it = begin;
+    for (Iter it = ++begin; it != end; ++it)
+    {
+      auto comp = getCompareVal(*it);
+      if (comp < lowest)
+      {
+        lowest = comp;
+        lowest_it = it;
+      }
+    }
+    return lowest_it;
+  }
+
+  double route_resolution_{ 2.0 };
   lanelet::LaneletMapPtr lanelet2_map_;
   lanelet::traffic_rules::TrafficRulesPtr traffic_rules_;
   lanelet::routing::RoutingGraphUPtr routing_graph_;
