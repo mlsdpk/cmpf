@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.abspath('.'))
 master_doc = 'index'
 
 project = 'cmpf'
-copyright = '2021, Phone Thiha Kyaw'
+copyright = '2022, Phone Thiha Kyaw'
 author = 'Phone Thiha Kyaw'
 
 # The full version, including alpha/beta/rc tags
