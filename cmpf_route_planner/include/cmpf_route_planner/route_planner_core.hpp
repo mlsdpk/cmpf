@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <nav_msgs/Path.h>
+#include <cmpf_msgs/Route.h>
 #include <geometry_msgs/PoseStamped.h>
 
 #include <lanelet2_core/primitives/Lanelet.h>
@@ -50,14 +50,14 @@ public:
    * @param goal_pose Destination point
    * @return True if successfully find the route otherwise false
    */
-  bool planRoute(nav_msgs::Path& route, const geometry_msgs::Pose& start_pose, const geometry_msgs::Pose& goal_pose);
+  bool planRoute(cmpf_msgs::Route& route, const geometry_msgs::Pose& start_pose, const geometry_msgs::Pose& goal_pose);
 
 private:
   std::vector<lanelet::Id> getRoute(const std::vector<lanelet::Id>& from_id, const std::vector<lanelet::Id>& to_id);
   std::size_t getNearestLaneletIdx(const lanelet::ConstLanelets& lanelets, const lanelet::Point3d& point);
   lanelet::Lanelet getNearestLanelet(const lanelet::Point3d& point);
-  geometry_msgs::PoseStamped fromPoseToPoseStamped(const geometry_msgs::Pose& p);
-  lanelet::Point3d fromPoseStampedToLLPoint3D(const geometry_msgs::PoseStamped& ps);
+  cmpf_msgs::Waypoint fromPoseToWaypoint(const geometry_msgs::Pose& p);
+  lanelet::Point3d fromWaypointToLLPoint3D(const cmpf_msgs::Waypoint& wp);
   std::pair<size_t, size_t> findNearestIndexPair(const std::vector<double>& accumulated_lengths,
                                                  const double target_length);
   std::vector<lanelet::BasicPoint3d> resamplePoints(const lanelet::ConstLineString3d& line_string,

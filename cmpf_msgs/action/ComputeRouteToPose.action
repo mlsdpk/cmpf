@@ -2,6 +2,6 @@
 geometry_msgs/PoseStamped goal_pose
 ---
 #result definition
-nav_msgs/Path path
+cmpf_msgs/Route route
 ---
 #feedback

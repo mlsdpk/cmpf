@@ -39,7 +39,7 @@ void RoutePlanner::updateLanelet2Map(const cmpf_msgs::Lanelet2MapBin& map_bin_ms
   routing_graph_ = lanelet::routing::RoutingGraph::build(*lanelet2_map_, *traffic_rules_);
 }
 
-bool RoutePlanner::planRoute(nav_msgs::Path& route, const geometry_msgs::Pose& start_pose,
+bool RoutePlanner::planRoute(cmpf_msgs::Route& route, const geometry_msgs::Pose& start_pose,
                              const geometry_msgs::Pose& goal_pose)
 {
   const lanelet::Point3d start_point(lanelet::utils::getId(), start_pose.position.x, start_pose.position.y, 0.0);
@@ -72,7 +72,7 @@ bool RoutePlanner::planRoute(nav_msgs::Path& route, const geometry_msgs::Pose& s
 
   for (const auto& ll : continuous_lane.lanelets())
   {
-    // const lanelet::traffic_rules::SpeedLimitInformation speed_limit = traffic_rules_->speedLimit(ll);
+    const lanelet::traffic_rules::SpeedLimitInformation speed_limit = traffic_rules_->speedLimit(ll);
 
     // generate centerline with fine route resolution
     const auto centerline = generateCenterline(ll);
@@ -81,38 +81,39 @@ bool RoutePlanner::planRoute(nav_msgs::Path& route, const geometry_msgs::Pose& s
     {
       auto point = centerline[i];
 
-      geometry_msgs::PoseStamped point_pose;
-      point_pose.pose.position.x = point.x();
-      point_pose.pose.position.y = point.y();
-      point_pose.pose.position.z = point.z();
+      cmpf_msgs::Waypoint waypoint;
+      waypoint.x = point.x();
+      waypoint.y = point.y();
+      waypoint.speed_limit = speed_limit.speedLimit.value();
 
-      route.poses.push_back(point_pose);
+      route.waypoints.push_back(waypoint);
     }
   }
 
-  // now we need to remove points that stay outside of start and goal points
-  // find the closest pose on the path to the robot (start pose)
-  auto transformation_begin = min_by(route.poses.begin(), route.poses.end(), [&](const geometry_msgs::PoseStamped& ps) {
-    return lanelet::geometry::distance2d(start_point, fromPoseStampedToLLPoint3D(ps));
-  });
+  // now we need to remove waypoints that stay outside of start and goal points
+  // find the closest waypoint on the path to the robot (start pose)
+  auto transformation_begin =
+      min_by(route.waypoints.begin(), route.waypoints.end(), [&](const cmpf_msgs::Waypoint& wp) {
+        return lanelet::geometry::distance2d(start_point, fromWaypointToLLPoint3D(wp));
+      });
 
   // prune the route before start point
-  route.poses.erase(std::begin(route.poses), transformation_begin);
+  route.waypoints.erase(std::begin(route.waypoints), transformation_begin);
 
-  // find the closest pose on the path to the robot (goal pose)
-  auto transformation_end = min_by(route.poses.begin(), route.poses.end(), [&](const geometry_msgs::PoseStamped& ps) {
-    return lanelet::geometry::distance2d(goal_point, fromPoseStampedToLLPoint3D(ps));
+  // find the closest waypoint on the path to the robot (goal pose)
+  auto transformation_end = min_by(route.waypoints.begin(), route.waypoints.end(), [&](const cmpf_msgs::Waypoint& wp) {
+    return lanelet::geometry::distance2d(goal_point, fromWaypointToLLPoint3D(wp));
   });
 
   // prune the route after goal point
-  if (transformation_end != std::end(route.poses))
-    route.poses.erase(std::next(transformation_end, 1), std::end(route.poses));
+  if (transformation_end != std::end(route.waypoints))
+    route.waypoints.erase(std::next(transformation_end, 1), std::end(route.waypoints));
 
   // insert start point to route
-  route.poses.insert(std::begin(route.poses), fromPoseToPoseStamped(start_pose));
+  route.waypoints.insert(std::begin(route.waypoints), fromPoseToWaypoint(start_pose));
 
   // add last goal point to route
-  route.poses.push_back(fromPoseToPoseStamped(goal_pose));
+  route.waypoints.push_back(fromPoseToWaypoint(goal_pose));
 
   return true;
 }
@@ -183,18 +184,17 @@ lanelet::Lanelet RoutePlanner::getNearestLanelet(const lanelet::Point3d& point)
   return nearest_lanelet;
 }
 
-lanelet::Point3d RoutePlanner::fromPoseStampedToLLPoint3D(const geometry_msgs::PoseStamped& ps)
+lanelet::Point3d RoutePlanner::fromWaypointToLLPoint3D(const cmpf_msgs::Waypoint& wp)
 {
-  return lanelet::Point3d(lanelet::InvalId, ps.pose.position.x, ps.pose.position.y, ps.pose.position.z);
+  return lanelet::Point3d(lanelet::InvalId, wp.x, wp.y, 0.0);
 }
 
-geometry_msgs::PoseStamped RoutePlanner::fromPoseToPoseStamped(const geometry_msgs::Pose& p)
+cmpf_msgs::Waypoint RoutePlanner::fromPoseToWaypoint(const geometry_msgs::Pose& p)
 {
-  geometry_msgs::PoseStamped ps;
-  ps.pose.position.x = p.position.x;
-  ps.pose.position.y = p.position.y;
-  ps.pose.position.z = p.position.z;
-  return ps;
+  cmpf_msgs::Waypoint wp;
+  wp.x = p.position.x;
+  wp.y = p.position.y;
+  return wp;
 }
 
 std::pair<size_t, size_t> RoutePlanner::findNearestIndexPair(const std::vector<double>& accumulated_lengths,

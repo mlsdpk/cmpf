@@ -14,6 +14,8 @@ add_message_files(
   FILES
   TrajectoryMsg.msg
   Lanelet2MapBin.msg
+  Waypoint.msg
+  Route.msg
 )
 
 ## Generate services in the 'srv' folder

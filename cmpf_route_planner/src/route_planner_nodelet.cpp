@@ -20,8 +20,8 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <nodelet/nodelet.h>
 #include <ros/ros.h>
-#include <nav_msgs/Path.h>
 #include <tf2_ros/transform_listener.h>
+#include <visualization_msgs/Marker.h>
 
 #include <memory>
 #include <thread>
@@ -62,8 +62,7 @@ public:
 
     // ros parameters
     private_nh_.param<double>("route_resolution", route_resolution_, 2.0);
-    private_nh_.param<double>("route_publish_frequency", route_publish_frequency_, 10.0);
-    private_nh_.param<bool>("publish_route", publish_route_, false);
+    private_nh_.param<bool>("publish_route_markers", publish_route_markers_, false);
 
     // tfs
     tf_ = std::make_shared<tf2_ros::Buffer>(ros::Duration(10));
@@ -81,12 +80,26 @@ public:
         false);
     action_server_->start();
 
-    // create route publisher
-    route_publisher_ = mt_prv_nh_.advertise<nav_msgs::Path>("global_route", 1);
+    // init route marker
+    route_marker_.ns = "route";
+    route_marker_.id = 0;
+    route_marker_.type = visualization_msgs::Marker::LINE_STRIP;
+    route_marker_.action = visualization_msgs::Marker::ADD;
+    route_marker_.pose.orientation.w = 1.0;
+    route_marker_.scale.x = 0.2;
+    std_msgs::ColorRGBA route_color;
+    route_color.r = 0.0;
+    route_color.g = 1.0;
+    route_color.b = 0.0;
+    route_color.a = 1.0;
+    route_marker_.color = route_color;
+
+    // create route marker publisher
+    route_marker_publisher_ = mt_prv_nh_.advertise<visualization_msgs::Marker>("route_marker", 1);
 
     // create route publisher timer
-    route_publish_timer_ = mt_nh_.createWallTimer(ros::WallDuration(1.0 / route_publish_frequency_),
-                                                  &RoutePlannerNodelet::routePublisherTimerCB, this);
+    route_marker_publish_timer_ =
+        mt_nh_.createWallTimer(ros::WallDuration(1.0), &RoutePlannerNodelet::routeMarkerPublisherTimerCB, this);
   }
 
   void createServiceClient()
@@ -126,6 +139,7 @@ public:
     geometry_msgs::Pose start_pose;
     try
     {
+      // TODO: changeable base_frame and world frame ids
       transform_stamped = tf_->lookupTransform("map", "ego_vehicle", ros::Time(0), ros::Duration(2.0));
       start_pose.position.x = transform_stamped.transform.translation.x;
       start_pose.position.y = transform_stamped.transform.translation.y;
@@ -137,7 +151,7 @@ public:
       return;
     }
 
-    nav_msgs::Path route;
+    cmpf_msgs::Route route;
     if (!route_planner_->planRoute(route, start_pose, goal->goal_pose.pose))
     {
       ROS_WARN("[cmpf_route_planner] GOAL aborted. Failed to find the route.");
@@ -150,19 +164,42 @@ public:
 
     ROS_INFO("[cmpf_route_planner] GOAL succeeded.");
     cmpf_msgs::ComputeRouteToPoseResult result;
-    result.path = route;
+    result.route = route;
     action_server_->setSucceeded(result);
 
+    curr_route_ = std::make_shared<cmpf_msgs::Route>(route);
+    route_marker_updated_ = false;
     route_exists_ = true;
-    curr_route_ = std::make_shared<nav_msgs::Path>(route);
   }
 
-  void routePublisherTimerCB(const ros::WallTimerEvent& event)
+  void routeMarkerPublisherTimerCB(const ros::WallTimerEvent& event)
   {
-    if (publish_route_ && route_exists_)
+    if (publish_route_markers_ && route_exists_)
     {
-      curr_route_->header.stamp = ros::Time::now();
-      route_publisher_.publish(*curr_route_);
+      if (!route_marker_updated_)
+      {
+        // update route marker
+        route_marker_.points.clear();
+        for (std::size_t i = 0; i < curr_route_->waypoints.size(); ++i)
+        {
+          geometry_msgs::Point p;
+          p.x = curr_route_->waypoints[i].x;
+          p.y = curr_route_->waypoints[i].y;
+          p.z = 0.0;
+
+          route_marker_.points.emplace_back(p);
+        }
+
+        route_marker_updated_ = true;
+      }
+
+      // publish route marker
+      if (route_marker_publisher_.getNumSubscribers() > 0)
+      {
+        route_marker_.header.frame_id = curr_route_->header.frame_id;
+        route_marker_.header.stamp = ros::Time::now();
+        route_marker_publisher_.publish(route_marker_);
+      }
     }
   }
 
@@ -178,14 +215,13 @@ private:
 
   // params
   double route_resolution_;
-  double route_publish_frequency_;
-  bool publish_route_{ false };
+  bool publish_route_markers_{ false };
 
   // publisher
-  ros::Publisher route_publisher_;
+  ros::Publisher route_marker_publisher_;
 
   // timer
-  ros::WallTimer route_publish_timer_;
+  ros::WallTimer route_marker_publish_timer_;
 
   std::shared_ptr<tf2_ros::Buffer> tf_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
@@ -199,8 +235,10 @@ private:
   cmpf_msgs::Lanelet2MapBin lanelet2_map_bin_msg_;
 
   std::shared_ptr<RoutePlanner> route_planner_;
-  bool route_exists_{ false };
-  std::shared_ptr<nav_msgs::Path> curr_route_;
+  std::atomic_bool route_exists_{ false };
+  std::atomic_bool route_marker_updated_{ false };
+  std::shared_ptr<cmpf_msgs::Route> curr_route_;
+  visualization_msgs::Marker route_marker_;
 };
 
 }  // namespace route_planner

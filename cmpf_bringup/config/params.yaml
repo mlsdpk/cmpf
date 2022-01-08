@@ -6,5 +6,5 @@ path_tracking_controller:
     lateral_controller_plugin: "cmpf_decoupled_controller/PurePursuit"
 
 route_planner:
-  publish_route: true
-  route_publish_frequency: 10.0
+  route_resolution: 2.0
+  publish_route_markers: true

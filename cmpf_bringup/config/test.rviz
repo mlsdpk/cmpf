@@ -3,8 +3,7 @@ Panels:
     Help Height: 0
     Name: Displays
     Property Tree Widget:
-      Expanded:
-        - /Global Route1
+      Expanded: ~
       Splitter Ratio: 0.5
     Tree Height: 770
   - Class: rviz/Selection
@@ -78,11 +77,11 @@ Visualization Manager:
       Unreliable: false
       Value: true
       Visibility:
-        Global Route: true
         Lanelet2 Map: true
         Lidar: true
         Objects: true
         Path: true
+        Route: true
         Value: true
       Zoom Factor: 1
     - Alpha: 1
@@ -122,29 +121,13 @@ Visualization Manager:
         right_lane_bound: true
       Queue Size: 100
       Value: true
-    - Alpha: 1
-      Buffer Length: 1
-      Class: rviz/Path
-      Color: 25; 255; 0
+    - Class: rviz/Marker
       Enabled: true
-      Head Diameter: 0.30000001192092896
-      Head Length: 0.20000000298023224
-      Length: 0.30000001192092896
-      Line Style: Lines
-      Line Width: 0.029999999329447746
-      Name: Global Route
-      Offset:
-        X: 0
-        Y: 0
-        Z: 0
-      Pose Color: 255; 85; 255
-      Pose Style: None
-      Queue Size: 10
-      Radius: 0.029999999329447746
-      Shaft Diameter: 0.10000000149011612
-      Shaft Length: 0.10000000149011612
-      Topic: /cmpf/route_planner/global_route
-      Unreliable: false
+      Marker Topic: /cmpf/route_planner/route_marker
+      Name: Route
+      Namespaces:
+        route: true
+      Queue Size: 100
       Value: true
   Enabled: true
   Global Options:
@@ -174,7 +157,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 222.9254913330078
+      Distance: 19.301715850830078
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -182,17 +165,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -78.97679138183594
-        Y: -38.204856872558594
-        Z: 0
+        X: -4.767002105712891
+        Y: 0.08992701768875122
+        Z: -1.7491125618107617e-05
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5697963237762451
+      Pitch: 0.49479734897613525
       Target Frame: ego_vehicle
-      Yaw: 3.1403968334198
+      Yaw: 3.170396566390991
     Saved: ~
 Window Geometry:
   CarlaControl:

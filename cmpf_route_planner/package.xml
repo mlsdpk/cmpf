@@ -14,7 +14,7 @@
   
   <depend>roscpp</depend>
   <depend>cmpf_msgs</depend>
-  <depend>nav_msgs</depend>
+  <depend>visualization_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>nodelet</depend>
   <depend>tf2</depend>

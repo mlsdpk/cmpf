@@ -3,7 +3,7 @@
         <Sequence name="root_sequence">
             <!-- Compute the route to desired goal pose. This will be the high-level mission planner which doesn't 
             consider any vehicle constraints or collison information. Later change "trajectory" to "route" -->
-            <ComputeRoute goal_pose="{goal_pose}" trajectory="{trajectory}" server_name="/route_planner/plan_route"/>
+            <ComputeRoute goal_pose="{goal_pose}" route="{route}" server_name="/route_planner/plan_route"/>
             <!-- <ComputePlan route="{route}" path="{path}" server_name="/path_planner/plan_path"/>
             <ComputeTrajectory path="{path}" trajectory="{trajectory}" server_name="/trajectory_planner/plan_trajectory"/> -->
             <!-- <FollowTrajectory trajectory="{trajectory}" server_name="/path_tracking_controller/follow_trajectory"/> -->

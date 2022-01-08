@@ -17,11 +17,12 @@
 #pragma once
 
 #include <geometry_msgs/PoseStamped.h>
-#include <nav_msgs/Path.h>
 
-#include "cmpf_behavior_tree/bt_action_client.hpp"
 #include "cmpf_msgs/ComputeRouteToPoseAction.h"
 #include "cmpf_msgs/ComputeRouteToPoseActionGoal.h"
+#include "cmpf_msgs/Route.h"
+
+#include "cmpf_behavior_tree/bt_action_client.hpp"
 
 namespace cmpf
 {
@@ -58,7 +59,7 @@ public:
   static BT::PortsList providedPorts()
   {
     return providedBasicPorts({ BT::InputPort<geometry_msgs::PoseStamped>("goal_pose", "Destination to plan the route"),
-                                BT::OutputPort<nav_msgs::Path>("trajectory", "Generated route in the map") });
+                                BT::OutputPort<cmpf_msgs::Route>("route", "Generated route in the map") });
   }
 };
 

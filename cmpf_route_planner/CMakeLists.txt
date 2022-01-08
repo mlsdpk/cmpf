@@ -9,7 +9,7 @@ endif()
 set(${PROJECT_NAME}_CATKIN_DEPS
   roscpp 
   cmpf_msgs
-  nav_msgs # remove later
+  visualization_msgs
   geometry_msgs
   tf2
   tf2_ros
