@@ -1,3 +1,5 @@
+import rospy
+
 from cmpf_behavior_prediction.base_behavior_predictor import BaseBehaviorPredictor
 from cmpf_behavior_prediction import factory
 
@@ -7,8 +9,8 @@ class MyTestPlugin(BaseBehaviorPredictor):
     def __init__(self):
         super().__init__()
 
-    def on_init(self):
-        print("On Init")
+    def initialize(self, name: str):
+        print(f"On Init: {name}")
 
-    def on_active(self):
+    def activate(self):
         print("On Active")

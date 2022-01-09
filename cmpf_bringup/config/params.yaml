@@ -8,3 +8,9 @@ path_tracking_controller:
 route_planner:
   route_resolution: 2.0
   publish_route_markers: true
+
+behavior_prediction_server:
+  prediction_frequency: 5.0 #Hz
+  plugin: "my_test_plugin"
+  my_test_plugin:
+    plugin: "cmpf_behavior_prediction.plugins.my_test_plugin.my_test_plugin"

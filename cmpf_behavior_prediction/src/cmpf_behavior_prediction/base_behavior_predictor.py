@@ -4,8 +4,8 @@ class BaseBehaviorPredictor(object):
     def __init__(self) -> None:
         pass
 
-    def on_init():
+    def initialize(self, name: str):
         raise NotImplementedError
 
-    def on_active():
+    def activate(self):
         raise NotImplementedError
