@@ -33,7 +33,8 @@ public:
 
   virtual void initialize(const std::string& name, ros::NodeHandle nh, tf2_ros::Buffer* tf) override;
 
-  virtual void computeLateralControl(carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) override;
+  virtual void computeLateralControl(const geometry_msgs::PoseStamped& pose,
+                                     carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) override;
 
   virtual void end() override;
 };

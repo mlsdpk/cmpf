@@ -14,42 +14,36 @@
   limitations under the License.
 ************************************************************************/
 
-#include "cmpf_decoupled_controller/plugins/pure_pursuit_controller.hpp"
+#include "cmpf_trajectory_planner/plugins/dummy_trajectory_planner.hpp"
 
 namespace cmpf
 {
-namespace path_tracking_controller
+namespace trajectory_planner
 {
-namespace decoupled_controller
-{
-PurePursuit::PurePursuit()
+DummyTrajectoryPlanner::DummyTrajectoryPlanner()
 {
 }
 
-PurePursuit::~PurePursuit()
+DummyTrajectoryPlanner::~DummyTrajectoryPlanner()
 {
 }
 
-void PurePursuit::initialize(const std::string& name, ros::NodeHandle nh, tf2_ros::Buffer* tf)
+void DummyTrajectoryPlanner::initialize(const std::string& name, ros::NodeHandle nh, tf2_ros::Buffer* tf)
 {
-  //
+  std::cout << "Dummy Trajectory Planner initialize." << std::endl;
 }
 
-void PurePursuit::computeLateralControl(const geometry_msgs::PoseStamped& pose,
-                                        carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd)
-{
-  //
-}
-
-void PurePursuit::end()
+bool DummyTrajectoryPlanner::setRoute(const cmpf_msgs::Route& route)
 {
 }
 
-}  // namespace decoupled_controller
-}  // namespace path_tracking_controller
+bool DummyTrajectoryPlanner::computeTrajectory(cmpf_msgs::Trajectory& trajectory)
+{
+}
+
+}  // namespace trajectory_planner
 }  // namespace cmpf
 
 #include <pluginlib/class_list_macros.h>
-// register this controller as a LateralController plugin
-PLUGINLIB_EXPORT_CLASS(cmpf::path_tracking_controller::decoupled_controller::PurePursuit,
-                       cmpf::path_tracking_controller::decoupled_controller::LateralController)
+// register this controller as a BaseController plugin
+PLUGINLIB_EXPORT_CLASS(cmpf::trajectory_planner::DummyTrajectoryPlanner, cmpf::cmpf_core::BaseTrajectoryPlanner)

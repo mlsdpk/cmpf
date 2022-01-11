@@ -74,14 +74,14 @@ void DecoupledController::initialize(const std::string& name, ros::NodeHandle nh
   }
 }
 
-bool DecoupledController::setTrajectory(const cmpf_msgs::TrajectoryMsg& trajectory)
+void DecoupledController::setTrajectory(const cmpf_msgs::Trajectory& trajectory)
 {
-  // /
 }
 
-bool DecoupledController::computeVehicleControlCommands(carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd)
+void DecoupledController::computeVehicleControlCommands(const geometry_msgs::PoseStamped& pose,
+                                                        carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd)
 {
-  //
+  // ROS_INFO("Current Vehicle pose - x: %.4f , y: %.4f", pose.pose.position.x, pose.pose.position.y);
 }
 
 }  // namespace decoupled_controller

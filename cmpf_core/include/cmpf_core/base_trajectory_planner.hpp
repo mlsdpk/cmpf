@@ -16,13 +16,12 @@
 
 #pragma once
 
-#include <carla_msgs/CarlaEgoVehicleControl.h>
-#include <geometry_msgs/PoseStamped.h>
 #include <ros/ros.h>
 #include <tf2_ros/buffer.h>
 
 #include <string>
 
+#include "cmpf_msgs/Route.h"
 #include "cmpf_msgs/Trajectory.h"
 
 namespace cmpf
@@ -30,45 +29,41 @@ namespace cmpf
 namespace cmpf_core
 {
 /**
- * @class BaseController
- * @brief Abstract controller interface that acts as a virtual base class for
- * all path tracking controller plugins
+ * @class BaseTrajectoryPlanner
+ * @brief Abstract planner interface that acts as a virtual base class for
+ * all trajectory planning plugins
  */
-class BaseController
+class BaseTrajectoryPlanner
 {
 public:
-  using Ptr = std::shared_ptr<cmpf::cmpf_core::BaseController>;
+  using Ptr = std::shared_ptr<cmpf::cmpf_core::BaseTrajectoryPlanner>;
 
   /**
    * @brief Virtual destructor
    */
-  virtual ~BaseController()
+  virtual ~BaseTrajectoryPlanner()
   {
   }
 
   /**
-   * @brief Method to initialize the controller
-   * @param name controller plugin name
+   * @brief Method to initialize the trajectory planner
+   * @param name trajectory planner plugin name
    * @param nh private nodehandler
    * @param tf tf transform
    */
   virtual void initialize(const std::string& name, ros::NodeHandle nh, tf2_ros::Buffer* tf) = 0;
 
   /**
-   * @brief Set the trajectory to follow
-   * @param trajectory The trajectory given by the local planner
+   * @brief Set the route to follow
+   * @param route The route given by the global route planner
    */
-  virtual void setTrajectory(const cmpf_msgs::Trajectory& trajectory) = 0;
+  virtual bool setRoute(const cmpf_msgs::Route& route) = 0;
 
   /**
-   * @brief Method to compute vehicle control commands (assuming that current
-   * trajectory is already given)
-   * @param pose Current pose of the vehicle in global frame
-   * @param vehicle_control_cmd The best carla vehicle control commands to
-   * follow the trajectory
+   * @brief Method to compute trajectory (assuming that current route is already given)
+   * @param trajectory The computed trajectory
    */
-  virtual void computeVehicleControlCommands(const geometry_msgs::PoseStamped& pose,
-                                             carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) = 0;
+  virtual bool computeTrajectory(cmpf_msgs::Trajectory& trajectory) = 0;
 };
 
 }  // namespace cmpf_core

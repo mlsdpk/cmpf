@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>cmpf_controller_server</name>
+  <name>cmpf_trajectory_planner</name>
   <version>1.0.0</version>
-  <description>The cmpf_controller_server package</description>
+  <description>The cmpf_trajectory_planner package</description>
 
   <maintainer email="mlsdphonethk@gmail.com">Phone Thiha Kyaw</maintainer>
 
@@ -16,14 +16,13 @@
   <depend>actionlib</depend>
   <depend>pluginlib</depend>
   <depend>cmpf_msgs</depend>
-  <depend>carla_msgs</depend>
   <depend>cmpf_core</depend>
-  <depend>cmpf_utils</depend>
   <depend>nodelet</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
 
   <export>
-    <nodelet plugin="${prefix}/cmpf_controller_server_nodelet_plugin.xml" />
+    <nodelet plugin="${prefix}/cmpf_trajectory_planner_nodelet_plugin.xml" />
+    <cmpf_core plugin="${prefix}/cmpf_trajectory_planner_plugins.xml" />
   </export>
 </package>

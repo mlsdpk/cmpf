@@ -1,10 +1,15 @@
+route_planner:
+  route_resolution: 2.0
+  publish_route_markers: true
+
+trajectory_planner:
+  planner_frequency: 10.0
+  plugin: cmpf_trajectory_planner/DummyTrajectoryPlanner
+
 path_tracking_controller:
   controller_frequency: 20.0
+  transform_tolerance: 0.2
   controller_plugin: "cmpf_decoupled_controller/DecoupledController"
   DecoupledController:
     longitudinal_controller_plugin: "cmpf_decoupled_controller/PID"
     lateral_controller_plugin: "cmpf_decoupled_controller/PurePursuit"
-
-route_planner:
-  route_resolution: 2.0
-  publish_route_markers: true

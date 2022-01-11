@@ -1,0 +1,6 @@
+<library path="lib/libcmpf_trajectory_planner_nodelet">
+  <class 
+    name="cmpf_trajectory_planner/TrajectoryPlannerNodelet" 
+    type="cmpf::trajectory_planner::TrajectoryPlannerNodelet" 
+    base_class_type="nodelet::Nodelet"/>
+</library>

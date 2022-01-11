@@ -1,0 +1,7 @@
+#goal definition
+cmpf_msgs/Trajectory trajectory
+---
+#result definition
+std_msgs/Empty result
+---
+#feedback

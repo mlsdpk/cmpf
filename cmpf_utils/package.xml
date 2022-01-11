@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>cmpf_utils</name>
+  <version>1.0.0</version>
+  <description>The cmpf_utils package</description>
+
+  <maintainer email="mlsdphonethk@gmail.com">Phone Thiha Kyaw</maintainer>
+
+  <license>Apache-2.0</license>
+
+  <author email="mlsdphonethk@gmail.com">Phone Thiha Kyaw</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <depend>roscpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+
+  <export></export>
+</package>

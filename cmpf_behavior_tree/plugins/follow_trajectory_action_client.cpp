@@ -26,7 +26,7 @@ namespace behavior_tree
 FollowTrajectoryActionClient::FollowTrajectoryActionClient(const std::string& xml_tag_name,
                                                            const std::string& action_server_name,
                                                            const BT::NodeConfiguration& conf)
-  : BTActionClientNode<cmpf_msgs::TrajectoryAction>(xml_tag_name, action_server_name, conf)
+  : BTActionClientNode<cmpf_msgs::ComputeControlsAction>(xml_tag_name, action_server_name, conf)
 {
 }
 
@@ -38,7 +38,7 @@ void FollowTrajectoryActionClient::on_tick()
 void FollowTrajectoryActionClient::on_wait_for_result()
 {
   // Grab the new path
-  cmpf_msgs::TrajectoryMsg new_trajectory;
+  cmpf_msgs::Trajectory new_trajectory;
   getInput("trajectory", new_trajectory);
 
   // Check if it is not same with the current one

@@ -16,25 +16,27 @@
 
 #pragma once
 
-#include "cmpf_behavior_tree/bt_action_client.hpp"
-#include "cmpf_msgs/ComputeControlsAction.h"
+#include "cmpf_msgs/ComputeTrajectoryAction.h"
+#include "cmpf_msgs/Route.h"
 #include "cmpf_msgs/Trajectory.h"
+
+#include "cmpf_behavior_tree/bt_action_client.hpp"
 
 namespace cmpf
 {
 namespace behavior_tree
 {
-class FollowTrajectoryActionClient : public BTActionClientNode<cmpf_msgs::ComputeControlsAction>
+class ComputeTrajectoryBTActionClientNode : public BTActionClientNode<cmpf_msgs::ComputeTrajectoryAction>
 {
 public:
   /**
-   * @brief A constructor for cmpf::behavior_tree::FollowTrajectoryActionClient
+   * @brief A constructor for cmpf::behavior_tree::ComputeTrajectoryBTActionClientNode
    * @param xml_tag_name Name for the XML tag for this node
    * @param action_name Action name this node creates a client for
    * @param conf BT node configuration
    */
-  FollowTrajectoryActionClient(const std::string& xml_tag_name, const std::string& action_server_name,
-                               const BT::NodeConfiguration& conf);
+  ComputeTrajectoryBTActionClientNode(const std::string& xml_tag_name, const std::string& action_server_name,
+                                      const BT::NodeConfiguration& conf);
 
   /**
    * @brief Function to perform some user-defined operation on tick
@@ -42,10 +44,11 @@ public:
   void on_tick() override;
 
   /**
-   * @brief Function to perform some user-defined operation after a timeout
-   * waiting for a result that hasn't been received yet
+   * @brief Put the output path on the blackboard upon successful
+   * completion of the action.
+   * @return BT::NodeStatus Returns SUCCESS
    */
-  void on_wait_for_result() override;
+  BT::NodeStatus on_success() override;
 
   /**
    * @brief Creates list of BT ports
@@ -53,7 +56,8 @@ public:
    */
   static BT::PortsList providedPorts()
   {
-    return providedBasicPorts({ BT::InputPort<cmpf_msgs::Trajectory>("trajectory", "Trajectory to follow") });
+    return providedBasicPorts({ BT::InputPort<cmpf_msgs::Route>("route", "Generated route in the map"),
+                                BT::OutputPort<cmpf_msgs::Trajectory>("trajectory", "Computed trajectory") });
   }
 };
 

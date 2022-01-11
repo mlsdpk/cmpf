@@ -18,12 +18,15 @@
 #include <nodelet/nodelet.h>
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
+#include <carla_msgs/CarlaEgoVehicleControl.h>
+#include <geometry_msgs/PoseStamped.h>
 
 #include <memory>
 #include <pluginlib/class_loader.hpp>
 
+#include "cmpf_msgs/ComputeControlsAction.h"
 #include "cmpf_core/base_controller.hpp"
-#include "cmpf_msgs/TrajectoryAction.h"
+#include "cmpf_utils/transform_utils.hpp"
 
 namespace cmpf
 {
@@ -50,12 +53,13 @@ public:
     nh_ = getNodeHandle();
     mt_nh_ = getMTNodeHandle();
     private_nh_ = getPrivateNodeHandle();
+    mt_prv_nh_ = getMTPrivateNodeHandle();
 
     // ros params
     private_nh_.param("controller_frequency", controller_frequency_, 20.0);
-
     private_nh_.param("controller_plugin", controller_plugin_,
                       std::string("cmpf_decoupled_controller/DecoupledController"));
+    private_nh_.param("transform_tolerance", transform_tolerance_, 0.3);
 
     // tfs
     tf_ = std::make_shared<tf2_ros::Buffer>(ros::Duration(10));
@@ -80,19 +84,122 @@ public:
       exit(1);
     }
 
+    // create publishers
+    vehicle_control_cmd_pub_ = std::make_shared<ros::Publisher>(
+        mt_nh_.advertise<carla_msgs::CarlaEgoVehicleControl>("/carla/ego_vehicle/vehicle_control_cmd", 1));
+
     // create action server
     action_server_ = std::make_unique<ActionServer>(
-        private_nh_, "follow_trajectory", std::bind(&ControllerServerNodelet::actionServerCallBack, this), false);
+        mt_prv_nh_, "follow_trajectory",
+        std::bind(&ControllerServerNodelet::actionServerCallBack, this, std::placeholders::_1), false);
     action_server_->start();
   }
 
-  void actionServerCallBack()
+  void actionServerCallBack(const cmpf_msgs::ComputeControlsGoalConstPtr& goal)
   {
+    ROS_INFO("[cmpf_controller_server] Received a goal, begin computing control effort.");
+
+    try
+    {
+      // update the goal trajectory
+      setControllerTrajectory(goal->trajectory);
+
+      ros::Rate loop_rate(controller_frequency_);
+      while (ros::ok())
+      {
+        if (action_server_->isPreemptRequested())
+        {
+          if (action_server_->isNewGoalAvailable())
+          {
+            auto new_goal = action_server_->acceptNewGoal();
+            setControllerTrajectory(new_goal->trajectory);
+          }
+          else
+          {
+            ROS_INFO("[cmpf_controller_server] Goal was canceled. Stopping the robot.");
+            action_server_->setPreempted();
+            publishZeroVelocity();
+            return;
+          }
+        }
+
+        computeControl();
+
+        if (isGoalReached())
+        {
+          ROS_INFO("[cmpf_controller_server] Reached the goal!");
+          break;
+        }
+
+        if (!loop_rate.sleep())
+        {
+          ROS_WARN("[cmpf_controller_server] Control loop missed its desired rate of %.4fHz", controller_frequency_);
+        }
+      }
+    }
+    catch (const std::exception& e)
+    {
+      ROS_ERROR("[cmpf_controller_server] Error occurs while executing control effort. Exception: %s", e.what());
+      publishZeroVelocity();
+      action_server_->setAborted();
+      return;
+    }
+
+    ROS_INFO("[cmpf_controller_server] Action Succeeded!");
+    publishZeroVelocity();
     action_server_->setSucceeded();
   }
 
+  void setControllerTrajectory(const cmpf_msgs::Trajectory& trajectory)
+  {
+    // TODO: Handle goal error here
+    controller_->setTrajectory(trajectory);
+
+    // update current trajectory
+    current_trajectory_ = trajectory;
+  }
+
+  void publishZeroVelocity()
+  {
+    carla_msgs::CarlaEgoVehicleControl cmd_msg;
+    cmd_msg.throttle = 0.0;
+    cmd_msg.brake = 1.0;
+    cmd_msg.steer = 0.0;
+    cmd_msg.header.frame_id = "ego_vehicle";  // TODO: get from ros param
+    cmd_msg.header.stamp = ros::Time::now();
+    vehicle_control_cmd_pub_->publish(cmd_msg);
+  }
+
+  void computeControl()
+  {
+    // first get the current ego_vehicle pose in the map
+    geometry_msgs::PoseStamped pose;
+    if (!cmpf_utils::getRobotPose(pose, *tf_, "ego_vehicle", "map", transform_tolerance_))
+    {
+      throw std::runtime_error("Failed to obtain robot pose");
+    }
+
+    carla_msgs::CarlaEgoVehicleControl cmd_msg;
+    try
+    {
+      controller_->computeVehicleControlCommands(pose, cmd_msg);
+    }
+    catch (const std::exception& ex)
+    {
+      throw std::runtime_error(ex.what());
+    }
+
+    // publish vehicle control commands
+    // vehicle_control_cmd_pub_->publish(cmd_msg);
+  }
+
+  bool isGoalReached()
+  {
+    return false;
+  }
+
 private:
-  using ActionServer = actionlib::SimpleActionServer<cmpf_msgs::TrajectoryAction>;
+  using ActionServer = actionlib::SimpleActionServer<cmpf_msgs::ComputeControlsAction>;
   using BaseControllerLoader = pluginlib::ClassLoader<cmpf_core::BaseController>;
 
   // ROS related
@@ -100,16 +207,22 @@ private:
   ros::NodeHandle nh_;
   ros::NodeHandle mt_nh_;
   ros::NodeHandle private_nh_;
+  ros::NodeHandle mt_prv_nh_;
+
+  // publisher
+  std::shared_ptr<ros::Publisher> vehicle_control_cmd_pub_;
 
   // tfs
   std::shared_ptr<tf2_ros::Buffer> tf_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+  double transform_tolerance_;
 
   // controller related
   std::unique_ptr<BaseControllerLoader> bc_loader_;
   std::shared_ptr<cmpf_core::BaseController> controller_;
   std::string controller_plugin_;
   double controller_frequency_;
+  cmpf_msgs::Trajectory current_trajectory_;
 
   // main action server
   std::unique_ptr<ActionServer> action_server_;

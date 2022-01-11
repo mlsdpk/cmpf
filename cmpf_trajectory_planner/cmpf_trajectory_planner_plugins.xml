@@ -1,0 +1,6 @@
+<library path="lib/libcmpf_dummy_trajectory_planner">
+  <class 
+    name="cmpf_trajectory_planner/DummyTrajectoryPlanner" 
+    type="cmpf::trajectory_planner::DummyTrajectoryPlanner" 
+    base_class_type="cmpf::cmpf_core::BaseTrajectoryPlanner"/>
+</library>

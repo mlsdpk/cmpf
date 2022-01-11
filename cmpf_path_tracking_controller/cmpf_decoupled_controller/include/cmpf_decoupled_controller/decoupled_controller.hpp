@@ -24,7 +24,7 @@
 #include <string>
 
 #include "cmpf_core/base_controller.hpp"
-#include "cmpf_msgs/TrajectoryMsg.h"
+#include "cmpf_msgs/Trajectory.h"
 
 namespace cmpf
 {
@@ -58,10 +58,12 @@ public:
   /**
    * @brief Method to compute vehicle longitudinal control commands (assuming
    * that current trajectory is already given)
+   * @param pose Current pose of the vehicle in global frame
    * @param vehicle_control_cmd The best carla vehicle control commands to
    * follow the trajectory
    */
-  virtual void computeLongitudinalControl(carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) = 0;
+  virtual void computeLongitudinalControl(const geometry_msgs::PoseStamped& pose,
+                                          carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) = 0;
 
   /**
    * @brief Method to cleanup the controller
@@ -95,10 +97,12 @@ public:
   /**
    * @brief Method to compute vehicle lateral control commands (assuming that
    * current trajectory is already given)
+   * @param pose Current pose of the vehicle in global frame
    * @param vehicle_control_cmd The best carla vehicle control commands to
    * follow the trajectory
    */
-  virtual void computeLateralControl(carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) = 0;
+  virtual void computeLateralControl(const geometry_msgs::PoseStamped& pose,
+                                     carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) = 0;
 
   /**
    * @brief Method to cleanup the controller
@@ -139,15 +143,17 @@ public:
    * @brief Set the trajectory to follow
    * @param trajectory The trajectory given by the local planner
    */
-  virtual bool setTrajectory(const cmpf_msgs::TrajectoryMsg& trajectory) override;
+  virtual void setTrajectory(const cmpf_msgs::Trajectory& trajectory) override;
 
   /**
    * @brief Method to compute vehicle control commands (assuming that current
    * trajectory is already given)
+   * @param pose Current pose of the vehicle in global frame
    * @param vehicle_control_cmd The best carla vehicle control commands to
    * follow the trajectory
    */
-  virtual bool computeVehicleControlCommands(carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) override;
+  virtual void computeVehicleControlCommands(const geometry_msgs::PoseStamped& pose,
+                                             carla_msgs::CarlaEgoVehicleControl& vehicle_control_cmd) override;
 
 protected:
   // pluginlib loaders for longitudianl and lateral control

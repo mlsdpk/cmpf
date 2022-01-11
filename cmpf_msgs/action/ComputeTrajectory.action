@@ -1,0 +1,7 @@
+#goal definition
+cmpf_msgs/Route route
+---
+#result definition
+cmpf_msgs/Trajectory trajectory
+---
+#feedback

@@ -12,10 +12,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  TrajectoryMsg.msg
   Lanelet2MapBin.msg
   Waypoint.msg
   Route.msg
+  Trajectory.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -29,7 +29,8 @@ add_action_files(
   FILES
   NavigateToPose.action
   ComputeRouteToPose.action
-  Trajectory.action
+  ComputeTrajectory.action
+  ComputeControls.action
 )
 
 ## Generate added messages and services with any dependencies listed here
