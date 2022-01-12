@@ -17,6 +17,7 @@
   <depend>pluginlib</depend>
   <depend>cmpf_msgs</depend>
   <depend>cmpf_core</depend>
+  <depend>cmpf_utils</depend>
   <depend>nodelet</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>

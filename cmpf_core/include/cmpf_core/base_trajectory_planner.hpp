@@ -18,6 +18,7 @@
 
 #include <ros/ros.h>
 #include <tf2_ros/buffer.h>
+#include <geometry_msgs/PoseStamped.h>
 
 #include <string>
 
@@ -57,13 +58,14 @@ public:
    * @brief Set the route to follow
    * @param route The route given by the global route planner
    */
-  virtual bool setRoute(const cmpf_msgs::Route& route) = 0;
+  virtual void setRoute(const cmpf_msgs::Route& route) = 0;
 
   /**
    * @brief Method to compute trajectory (assuming that current route is already given)
    * @param trajectory The computed trajectory
+   * @param pose Current pose of the vehicle in global frame
    */
-  virtual bool computeTrajectory(cmpf_msgs::Trajectory& trajectory) = 0;
+  virtual void computeTrajectory(cmpf_msgs::Trajectory& trajectory, const geometry_msgs::PoseStamped& pose) = 0;
 };
 
 }  // namespace cmpf_core

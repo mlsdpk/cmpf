@@ -3,12 +3,15 @@ route_planner:
   publish_route_markers: true
 
 trajectory_planner:
-  planner_frequency: 10.0
+  transform_tolerance: 0.2
   plugin: cmpf_trajectory_planner/DummyTrajectoryPlanner
+  DummyTrajectoryPlanner:
+    max_distance: 50.0 # m
 
 path_tracking_controller:
   controller_frequency: 20.0
   transform_tolerance: 0.2
+  publish_trajectory_marker: true
   controller_plugin: "cmpf_decoupled_controller/DecoupledController"
   DecoupledController:
     longitudinal_controller_plugin: "cmpf_decoupled_controller/PID"

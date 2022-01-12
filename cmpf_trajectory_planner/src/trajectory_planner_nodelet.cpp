@@ -22,8 +22,10 @@
 #include <memory>
 #include <pluginlib/class_loader.hpp>
 
+#include "cmpf_msgs/Trajectory.h"
 #include "cmpf_msgs/ComputeTrajectoryAction.h"
 #include "cmpf_core/base_trajectory_planner.hpp"
+#include "cmpf_utils/transform_utils.hpp"
 
 namespace cmpf
 {
@@ -50,11 +52,11 @@ public:
     nh_ = getNodeHandle();
     mt_nh_ = getMTNodeHandle();
     private_nh_ = getPrivateNodeHandle();
+    mt_prv_nh_ = getMTPrivateNodeHandle();
 
     // ros params
-    private_nh_.param("planner_frequency", planner_frequency_, 10.0);
-
     private_nh_.param("plugin", planner_plugin_, std::string("cmpf_trajectory_planner/DummyTrajectoryPlanner"));
+    private_nh_.param("transform_tolerance", transform_tolerance_, 0.3);
 
     // tfs
     tf_ = std::make_shared<tf2_ros::Buffer>(ros::Duration(10));
@@ -81,13 +83,65 @@ public:
 
     // create action server
     action_server_ = std::make_unique<ActionServer>(
-        private_nh_, "plan_trajectory", std::bind(&TrajectoryPlannerNodelet::actionServerCallBack, this), false);
+        private_nh_, "plan_trajectory",
+        std::bind(&TrajectoryPlannerNodelet::actionServerCallBack, this, std::placeholders::_1), false);
+
+    // start action server
     action_server_->start();
   }
 
-  void actionServerCallBack()
+  void actionServerCallBack(const cmpf_msgs::ComputeTrajectoryGoalConstPtr& goal)
   {
-    action_server_->setSucceeded();
+    ROS_DEBUG("[cmpf_trajectory_planner] Received a goal, begin computing trajectory.");
+
+    cmpf_msgs::Trajectory trajectory;
+    try
+    {
+      // update the route
+      setPlannerRoute(goal->route);
+
+      // compute trajectory
+      computeTrajectory(trajectory);
+    }
+    catch (const std::exception& ex)
+    {
+      ROS_ERROR("[cmpf_trajectory_planner] Error occurs while computing trajectory. Exception: %s", ex.what());
+      action_server_->setAborted();
+      return;
+    }
+
+    ROS_DEBUG("[cmpf_trajectory_planner] Action Succeeded.");
+
+    cmpf_msgs::ComputeTrajectoryResult result;
+    result.trajectory = trajectory;
+    action_server_->setSucceeded(result);
+  }
+
+  void setPlannerRoute(const cmpf_msgs::Route& route)
+  {
+    // TODO: Only update route if not the same
+    planner_->setRoute(route);
+
+    current_route_ = route;
+  }
+
+  void computeTrajectory(cmpf_msgs::Trajectory& trajectory)
+  {
+    // first get the current ego_vehicle pose in the map
+    geometry_msgs::PoseStamped pose;
+    if (!cmpf_utils::getRobotPose(pose, *tf_, "ego_vehicle", "map", transform_tolerance_))
+    {
+      throw std::runtime_error("Failed to obtain robot pose");
+    }
+
+    try
+    {
+      planner_->computeTrajectory(trajectory, pose);
+    }
+    catch (const std::exception& ex)
+    {
+      throw std::runtime_error(ex.what());
+    }
   }
 
 private:
@@ -99,16 +153,18 @@ private:
   ros::NodeHandle nh_;
   ros::NodeHandle mt_nh_;
   ros::NodeHandle private_nh_;
+  ros::NodeHandle mt_prv_nh_;
 
   // tfs
   std::shared_ptr<tf2_ros::Buffer> tf_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+  double transform_tolerance_;
 
   // controller related
   std::unique_ptr<BasePluginLoader> plugin_loader_;
   std::shared_ptr<cmpf_core::BaseTrajectoryPlanner> planner_;
   std::string planner_plugin_;
-  double planner_frequency_;
+  cmpf_msgs::Route current_route_;
 
   // main action server
   std::unique_ptr<ActionServer> action_server_;

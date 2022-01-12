@@ -83,14 +83,16 @@ public:
     // init route marker
     route_marker_.ns = "route";
     route_marker_.id = 0;
-    route_marker_.type = visualization_msgs::Marker::LINE_STRIP;
+    route_marker_.type = visualization_msgs::Marker::SPHERE_LIST;
     route_marker_.action = visualization_msgs::Marker::ADD;
     route_marker_.pose.orientation.w = 1.0;
-    route_marker_.scale.x = 0.2;
+    route_marker_.scale.x = 0.5;
+    route_marker_.scale.y = 0.5;
+    route_marker_.scale.z = 0.5;
     std_msgs::ColorRGBA route_color;
-    route_color.r = 0.0;
-    route_color.g = 1.0;
-    route_color.b = 0.0;
+    route_color.r = 0.58;
+    route_color.g = 0.0;
+    route_color.b = 0.83;
     route_color.a = 1.0;
     route_marker_.color = route_color;
 

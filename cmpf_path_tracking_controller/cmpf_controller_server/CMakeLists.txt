@@ -12,10 +12,12 @@ set(${PROJECT_NAME}_CATKIN_DEPS
   pluginlib
   cmpf_msgs
   carla_msgs
+  visualization_msgs
   cmpf_core
   cmpf_utils
   tf2
   tf2_ros
+  tf2_geometry_msgs
 )
 
 find_package(catkin REQUIRED COMPONENTS ${${PROJECT_NAME}_CATKIN_DEPS})

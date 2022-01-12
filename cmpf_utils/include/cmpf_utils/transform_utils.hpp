@@ -26,8 +26,8 @@ namespace cmpf
 {
 namespace cmpf_utils
 {
-bool getRobotPose(geometry_msgs::PoseStamped& global_pose, tf2_ros::Buffer& tf_buffer, const std::string& base_frame,
-                  const std::string& target_frame, double tolerance)
+inline bool getRobotPose(geometry_msgs::PoseStamped& global_pose, tf2_ros::Buffer& tf_buffer,
+                         const std::string& base_frame, const std::string& target_frame, double tolerance)
 {
   tf2::toMsg(tf2::Transform::getIdentity(), global_pose.pose);
   geometry_msgs::PoseStamped robot_pose;
@@ -79,6 +79,30 @@ bool getRobotPose(geometry_msgs::PoseStamped& global_pose, tf2_ros::Buffer& tf_b
     return false;
   }
   return true;
+}
+
+/**
+ * Find element in iterator with the minimum calculated value
+ */
+template <typename Iter, typename Getter>
+inline Iter min_by(Iter begin, Iter end, Getter getCompareVal)
+{
+  if (begin == end)
+  {
+    return end;
+  }
+  auto lowest = getCompareVal(*begin);
+  Iter lowest_it = begin;
+  for (Iter it = ++begin; it != end; ++it)
+  {
+    auto comp = getCompareVal(*it);
+    if (comp < lowest)
+    {
+      lowest = comp;
+      lowest_it = it;
+    }
+  }
+  return lowest_it;
 }
 }  // namespace cmpf_utils
 }  // namespace cmpf

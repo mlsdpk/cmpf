@@ -16,9 +16,11 @@
 
 #pragma once
 
+#include <geometry_msgs/PoseStamped.h>
 #include <tf2_ros/buffer.h>
 
 #include <pluginlib/class_loader.hpp>
+
 #include <string>
 
 #include "cmpf_core/base_trajectory_planner.hpp"
@@ -54,13 +56,23 @@ public:
    * @brief Set the route to follow
    * @param route The route given by the global route planner
    */
-  virtual bool setRoute(const cmpf_msgs::Route& route) override;
+  virtual void setRoute(const cmpf_msgs::Route& route) override;
 
   /**
    * @brief Method to compute trajectory (assuming that current route is already given)
    * @param trajectory The computed trajectory
+   * @param pose Current pose of the vehicle in global frame
    */
-  virtual bool computeTrajectory(cmpf_msgs::Trajectory& trajectory) override;
+  virtual void computeTrajectory(cmpf_msgs::Trajectory& trajectory, const geometry_msgs::PoseStamped& pose) override;
+
+private:
+  bool transformGlobalRoute(cmpf_msgs::Trajectory& trajectory, const geometry_msgs::PoseStamped& pose);
+  bool transformPose(const geometry_msgs::PoseStamped& in_pose, geometry_msgs::PoseStamped& out_pose,
+                     const std::string& frame);
+
+  cmpf_msgs::Route route_;
+  tf2_ros::Buffer* tf_;
+  double max_distance_{ 100.0 };
 };
 
 }  // namespace trajectory_planner

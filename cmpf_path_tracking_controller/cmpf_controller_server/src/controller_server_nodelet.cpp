@@ -20,6 +20,7 @@
 #include <tf2_ros/transform_listener.h>
 #include <carla_msgs/CarlaEgoVehicleControl.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <visualization_msgs/Marker.h>
 
 #include <memory>
 #include <pluginlib/class_loader.hpp>
@@ -60,6 +61,7 @@ public:
     private_nh_.param("controller_plugin", controller_plugin_,
                       std::string("cmpf_decoupled_controller/DecoupledController"));
     private_nh_.param("transform_tolerance", transform_tolerance_, 0.3);
+    private_nh_.param<bool>("publish_trajectory_marker", publish_trajectory_marker_, false);
 
     // tfs
     tf_ = std::make_shared<tf2_ros::Buffer>(ros::Duration(10));
@@ -87,6 +89,11 @@ public:
     // create publishers
     vehicle_control_cmd_pub_ = std::make_shared<ros::Publisher>(
         mt_nh_.advertise<carla_msgs::CarlaEgoVehicleControl>("/carla/ego_vehicle/vehicle_control_cmd", 1));
+    trajectory_marker_pub_ =
+        std::make_shared<ros::Publisher>(mt_prv_nh_.advertise<visualization_msgs::Marker>("trajectory_marker", 1));
+
+    initTrajectoryMarker();
+    current_trajectory_ = std::make_shared<cmpf_msgs::Trajectory>();
 
     // create action server
     action_server_ = std::make_unique<ActionServer>(
@@ -97,7 +104,7 @@ public:
 
   void actionServerCallBack(const cmpf_msgs::ComputeControlsGoalConstPtr& goal)
   {
-    ROS_INFO("[cmpf_controller_server] Received a goal, begin computing control effort.");
+    ROS_DEBUG("[cmpf_controller_server] Received a goal, begin computing control effort.");
 
     try
     {
@@ -112,6 +119,7 @@ public:
           if (action_server_->isNewGoalAvailable())
           {
             auto new_goal = action_server_->acceptNewGoal();
+            ROS_DEBUG("[cmpf_controller_server] New goal accepted.");
             setControllerTrajectory(new_goal->trajectory);
           }
           else
@@ -156,7 +164,7 @@ public:
     controller_->setTrajectory(trajectory);
 
     // update current trajectory
-    current_trajectory_ = trajectory;
+    *current_trajectory_ = trajectory;
   }
 
   void publishZeroVelocity()
@@ -191,11 +199,55 @@ public:
 
     // publish vehicle control commands
     // vehicle_control_cmd_pub_->publish(cmd_msg);
+
+    // publish trajectory for visualization
+    if (publish_trajectory_marker_)
+      publishTrajectoryMarker();
   }
 
   bool isGoalReached()
   {
     return false;
+  }
+
+  void initTrajectoryMarker()
+  {
+    trajectory_marker_.ns = "trajectory";
+    trajectory_marker_.id = 0;
+    trajectory_marker_.type = visualization_msgs::Marker::LINE_STRIP;
+    trajectory_marker_.action = visualization_msgs::Marker::ADD;
+    trajectory_marker_.pose.orientation.w = 1.0;
+    trajectory_marker_.scale.x = 1.5;
+    std_msgs::ColorRGBA trajectory_color;
+    trajectory_color.r = 0.0;
+    trajectory_color.g = 1.0;
+    trajectory_color.b = 0.0;
+    trajectory_color.a = 1.0;
+    trajectory_marker_.color = trajectory_color;
+  }
+
+  void publishTrajectoryMarker()
+  {
+    // publish trajectory marker
+    if (trajectory_marker_pub_->getNumSubscribers() > 0)
+    {
+      // update trajectory marker
+      trajectory_marker_.points.clear();
+      for (std::size_t i = 0; i < current_trajectory_->poses.size(); ++i)
+      {
+        geometry_msgs::Point p;
+        p.x = current_trajectory_->poses[i].position.x;
+        p.y = current_trajectory_->poses[i].position.y;
+        p.z = current_trajectory_->poses[i].position.z;
+
+        trajectory_marker_.points.emplace_back(p);
+      }
+
+      trajectory_marker_.header.frame_id = current_trajectory_->header.frame_id;
+      trajectory_marker_.header.stamp = ros::Time::now();
+
+      trajectory_marker_pub_->publish(trajectory_marker_);
+    }
   }
 
 private:
@@ -211,6 +263,7 @@ private:
 
   // publisher
   std::shared_ptr<ros::Publisher> vehicle_control_cmd_pub_;
+  std::shared_ptr<ros::Publisher> trajectory_marker_pub_;
 
   // tfs
   std::shared_ptr<tf2_ros::Buffer> tf_;
@@ -222,7 +275,9 @@ private:
   std::shared_ptr<cmpf_core::BaseController> controller_;
   std::string controller_plugin_;
   double controller_frequency_;
-  cmpf_msgs::Trajectory current_trajectory_;
+  std::shared_ptr<cmpf_msgs::Trajectory> current_trajectory_;
+  visualization_msgs::Marker trajectory_marker_;
+  bool publish_trajectory_marker_{ false };
 
   // main action server
   std::unique_ptr<ActionServer> action_server_;

@@ -12,6 +12,7 @@ set(${PROJECT_NAME}_CATKIN_DEPS
   pluginlib
   cmpf_msgs
   cmpf_core
+  cmpf_utils
   tf2
   tf2_ros
 )

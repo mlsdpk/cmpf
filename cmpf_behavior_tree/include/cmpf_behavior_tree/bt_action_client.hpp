@@ -173,7 +173,7 @@ private:
    */
   void sendNewGoal()
   {
-    ROS_INFO("[cmpf_behavior_tree] Sending new goal...");
+    ROS_DEBUG("[cmpf_behavior_tree] Sending new goal...");
     action_client_->sendGoal(goal_);
     goal_sent_init_time_ = ros::Time::now();
   }
@@ -198,15 +198,24 @@ private:
 
     try
     {
-      // current state of the goal
-      actionlib::SimpleClientGoalState::StateEnum goal_state = action_client_->getState().state_;
-
-      if (ros::ok() && (goal_state == actionlib::SimpleClientGoalState::StateEnum::PENDING ||
-                        goal_state == actionlib::SimpleClientGoalState::StateEnum::ACTIVE))
+      if (ros::ok())
       {
         on_wait_for_result();
 
-        return BT::NodeStatus::RUNNING;
+        // current state of the goal
+        actionlib::SimpleClientGoalState::StateEnum goal_state = action_client_->getState().state_;
+
+        if (goal_updated_ && goal_state == actionlib::SimpleClientGoalState::StateEnum::ACTIVE)
+        {
+          goal_updated_ = false;
+          sendNewGoal();
+        }
+
+        if (goal_state == actionlib::SimpleClientGoalState::StateEnum::PENDING ||
+            goal_state == actionlib::SimpleClientGoalState::StateEnum::ACTIVE)
+        {
+          return BT::NodeStatus::RUNNING;
+        }
       }
     }
     catch (const std::runtime_error& ex)
@@ -219,6 +228,7 @@ private:
     switch (action_client_->getState().state_)
     {
       case actionlib::SimpleClientGoalState::StateEnum::SUCCEEDED:
+        result_ = *action_client_->getResult();
         status = on_success();
         break;
 

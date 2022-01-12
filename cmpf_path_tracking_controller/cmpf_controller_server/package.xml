@@ -17,11 +17,13 @@
   <depend>pluginlib</depend>
   <depend>cmpf_msgs</depend>
   <depend>carla_msgs</depend>
+  <depend>visualization_msgs</depend>
   <depend>cmpf_core</depend>
   <depend>cmpf_utils</depend>
   <depend>nodelet</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
 
   <export>
     <nodelet plugin="${prefix}/cmpf_controller_server_nodelet_plugin.xml" />
