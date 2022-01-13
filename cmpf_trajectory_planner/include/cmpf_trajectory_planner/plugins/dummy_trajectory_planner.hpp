@@ -69,10 +69,13 @@ private:
   bool transformGlobalRoute(cmpf_msgs::Trajectory& trajectory, const geometry_msgs::PoseStamped& pose);
   bool transformPose(const geometry_msgs::PoseStamped& in_pose, geometry_msgs::PoseStamped& out_pose,
                      const std::string& frame);
+  void interpolate(cmpf_msgs::Trajectory& trajectory, const cmpf_msgs::Trajectory& transformed_trajectory,
+                   double trajectory_resolution);
 
   cmpf_msgs::Route route_;
   tf2_ros::Buffer* tf_;
-  double max_distance_{ 100.0 };
+  double max_distance_;
+  double trajectory_resolution_;
 };
 
 }  // namespace trajectory_planner

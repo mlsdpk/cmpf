@@ -210,20 +210,27 @@ public:
     return false;
   }
 
+  // TODO: Update trajectory markers into marker array
+  // 1. Add linestrip as reference trajectory
+  // 2. Add spheres as trajectory points
+  // 3. Add reference speed and speed from trajectory plannner as text
   void initTrajectoryMarker()
   {
     trajectory_marker_.ns = "trajectory";
     trajectory_marker_.id = 0;
-    trajectory_marker_.type = visualization_msgs::Marker::LINE_STRIP;
+    trajectory_marker_.type = visualization_msgs::Marker::SPHERE_LIST;
     trajectory_marker_.action = visualization_msgs::Marker::ADD;
     trajectory_marker_.pose.orientation.w = 1.0;
-    trajectory_marker_.scale.x = 1.5;
+    trajectory_marker_.scale.x = 0.5;
+    trajectory_marker_.scale.y = 0.5;
+    trajectory_marker_.scale.z = 0.5;
     std_msgs::ColorRGBA trajectory_color;
     trajectory_color.r = 0.0;
     trajectory_color.g = 1.0;
     trajectory_color.b = 0.0;
     trajectory_color.a = 1.0;
     trajectory_marker_.color = trajectory_color;
+    trajectory_marker_.frame_locked = true;
   }
 
   void publishTrajectoryMarker()

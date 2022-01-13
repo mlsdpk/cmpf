@@ -4,11 +4,27 @@
     <include file="$(find cmpf_bringup)/launch/carla_bridge.launch"/>
 
     <!-- lanelet2 map file path -->
-    <arg name="lanelet2_map_file_path" value="$(find cmpf_bringup)/map/Town01.osm"/>
+    <arg name="lanelet2_map_file_path" value="$(find cmpf_bringup)/map/Town01/Town01.osm"/>
+
+    <!-- use pcd map or not -->
+    <arg name="use_pcd" value="false"/>
 
     <arg name="nodelet_manager" default="cmpf_nodelet_manager"/>
 
     <group ns="cmpf">
+
+        <group if="$(arg use_pcd)">
+            <!-- pointcloud map file path -->
+            <arg name="pcd_file_path" value="$(find cmpf_bringup)/map/Town01/Town01.pcd"/>
+            
+            <!-- load pointcloud map -->
+            <node pkg="pcl_ros" type="pcd_to_pointcloud" name="spawn_pcd_to_pcl" output="screen" 
+                args ="$(arg pcd_file_path) 2.0" >
+                <param name="frame_id" value="map" />
+                <remap from="cloud_pcd" to="map_points_raw" />
+            </node>
+        </group>
+
         <rosparam file="$(find cmpf_bringup)/config/params.yaml" command="load"/>
         <node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager)" args="manager" output="screen"/>
 
@@ -24,14 +40,21 @@
             pkg="nodelet" 
             type="nodelet" 
             name="route_planner" 
-            args="load cmpf_route_planner/RoutePlannerNodelet $(arg nodelet_manager)"/>           
+            args="load cmpf_route_planner/RoutePlannerNodelet $(arg nodelet_manager)"/> 
+
+        <!-- trajectory planner nodelet -->
+        <node 
+            pkg="nodelet" 
+            type="nodelet" 
+            name="trajectory_planner" 
+            args="load cmpf_trajectory_planner/TrajectoryPlannerNodelet $(arg nodelet_manager)"/>             
 
         <!-- controller server nodelet -->
-        <!-- <node 
+        <node 
             pkg="nodelet" 
             type="nodelet" 
             name="path_tracking_controller" 
-            args="load cmpf_controller_server/ControllerServerNodelet $(arg nodelet_manager)"/> -->
+            args="load cmpf_controller_server/ControllerServerNodelet $(arg nodelet_manager)"/>
 
         <!-- bt server nodelet -->
         <node 
@@ -41,6 +64,7 @@
             args="load cmpf_behavior_tree/BTActionServerNodelet $(arg nodelet_manager)"/>
 
         <!-- bt client node for sending goal to server using rviz 2D Nav goal -->
+        <!-- TODO: Remove this node and add this into BTActionServerNodelet as self-client -->
         <node pkg="cmpf_behavior_tree" type="bt_action_client_node" name="bt_action_client_node"/>
     </group>
 

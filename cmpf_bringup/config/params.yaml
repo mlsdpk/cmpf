@@ -6,7 +6,8 @@ trajectory_planner:
   transform_tolerance: 0.2
   plugin: cmpf_trajectory_planner/DummyTrajectoryPlanner
   DummyTrajectoryPlanner:
-    max_distance: 50.0 # m
+    max_distance: 30.0 # m
+    resolution: 0.5 # m
 
 path_tracking_controller:
   controller_frequency: 20.0

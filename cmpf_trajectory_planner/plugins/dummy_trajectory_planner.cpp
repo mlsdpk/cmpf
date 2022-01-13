@@ -38,6 +38,8 @@ void DummyTrajectoryPlanner::initialize(const std::string& name, ros::NodeHandle
   // TODO: Implement better approach
   std::string max_distance_param_name = name + "/max_distance";
   nh.param<double>(max_distance_param_name, max_distance_, 30.0);
+  std::string resolution_param_name = name + "/resolution";
+  nh.param<double>(resolution_param_name, trajectory_resolution_, 0.5);
 }
 
 void DummyTrajectoryPlanner::setRoute(const cmpf_msgs::Route& route)
@@ -66,11 +68,18 @@ void DummyTrajectoryPlanner::computeTrajectory(cmpf_msgs::Trajectory& trajectory
   // make sure trajectory is empty
   trajectory.poses.clear();
 
-  // transform the global route into local robot frame
-  if (!transformGlobalRoute(trajectory, pose))
+  // transform the global route into local robot frame and prune the trajectory
+  cmpf_msgs::Trajectory transformed_trajectory;
+  if (!transformGlobalRoute(transformed_trajectory, pose))
   {
     throw std::runtime_error("Could not transform the global route to the frame of the planner");
   }
+
+  // linear interpolate trajectory points to get fine resolution
+  interpolate(trajectory, transformed_trajectory, trajectory_resolution_);
+
+  trajectory.header.frame_id = transformed_trajectory.header.frame_id;
+  trajectory.header.stamp = transformed_trajectory.header.stamp;
 }
 
 bool DummyTrajectoryPlanner::transformGlobalRoute(cmpf_msgs::Trajectory& trajectory,
@@ -151,6 +160,37 @@ bool DummyTrajectoryPlanner::transformPose(const geometry_msgs::PoseStamped& in_
     ROS_ERROR("Exception in transformPose: %s", ex.what());
   }
   return false;
+}
+
+void DummyTrajectoryPlanner::interpolate(cmpf_msgs::Trajectory& trajectory,
+                                         const cmpf_msgs::Trajectory& transformed_trajectory,
+                                         double trajectory_resolution)
+{
+  for (std::size_t i = 0; i < transformed_trajectory.poses.size() - 1; ++i)
+  {
+    // first add the pose into trajectory
+    trajectory.poses.push_back(transformed_trajectory.poses[i]);
+
+    // get number of points to interpolate
+    const double dist =
+        cmpf_utils::euclidean_distance(transformed_trajectory.poses[i], transformed_trajectory.poses[i + 1]);
+    if (dist <= trajectory_resolution)
+      continue;
+    const unsigned int num_pts = static_cast<unsigned>(std::ceil(dist / trajectory_resolution)) - 1u;
+
+    for (std::size_t j = 0; j < num_pts; ++j)
+    {
+      geometry_msgs::Pose p;
+      const auto t = trajectory_resolution * static_cast<double>(j + 1);
+      p.position.x = transformed_trajectory.poses[i].position.x +
+                     (transformed_trajectory.poses[i + 1].position.x - transformed_trajectory.poses[i].position.x) * t;
+      p.position.y = transformed_trajectory.poses[i].position.y +
+                     (transformed_trajectory.poses[i + 1].position.y - transformed_trajectory.poses[i].position.y) * t;
+      trajectory.poses.emplace_back(p);
+    }
+  }
+  //  add the last pose into trajectory
+  trajectory.poses.push_back(transformed_trajectory.poses[transformed_trajectory.poses.size() - 1]);
 }
 
 }  // namespace trajectory_planner
