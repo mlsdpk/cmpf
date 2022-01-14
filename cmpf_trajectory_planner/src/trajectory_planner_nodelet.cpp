@@ -26,6 +26,7 @@
 #include "cmpf_msgs/ComputeTrajectoryAction.h"
 #include "cmpf_core/base_trajectory_planner.hpp"
 #include "cmpf_utils/transform_utils.hpp"
+#include "cmpf_utils/debug.hpp"
 
 namespace cmpf
 {

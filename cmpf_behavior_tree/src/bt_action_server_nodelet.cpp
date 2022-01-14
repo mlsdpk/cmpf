@@ -15,6 +15,7 @@
 ************************************************************************/
 
 #include <actionlib/server/simple_action_server.h>
+#include <actionlib/client/simple_action_client.h>
 #include <behaviortree_cpp_v3/behavior_tree.h>
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/utils/shared_library.h>
@@ -78,9 +79,18 @@ public:
     black_board_->set<std::string>("ns", nh_.getNamespace());
 
     // create action server
-    action_server_ = std::make_unique<ActionT>(
+    action_server_ = std::make_shared<ActionT>(
         private_nh_, "bt_server", std::bind(&BTActionServerNodelet::actionServerCallBack, this, std::placeholders::_1),
         false);
+
+    // create self action client
+    self_action_client_ = std::make_shared<ClientT>(private_nh_, "bt_server", true);
+
+    // create rviz goal subscriber
+    rviz_goal_sub_ = std::make_shared<ros::Subscriber>(mt_nh_.subscribe<geometry_msgs::PoseStamped>(
+        "/move_base_simple/goal", 1, &BTActionServerNodelet::rvizGoalCallback, this));
+
+    // start action server
     action_server_->start();
   }
 
@@ -147,8 +157,16 @@ public:
     }
   }
 
+  void rvizGoalCallback(const geometry_msgs::PoseStamped::ConstPtr& nav_goal)
+  {
+    cmpf_msgs::NavigateToPoseGoal bt_goal;
+    bt_goal.pose = *nav_goal;
+    self_action_client_->sendGoal(bt_goal);
+  }
+
 private:
   using ActionT = actionlib::SimpleActionServer<cmpf_msgs::NavigateToPoseAction>;
+  using ClientT = actionlib::SimpleActionClient<cmpf_msgs::NavigateToPoseAction>;
 
   bool loadBehaviorTree(const std::string& bt_xml_file_path)
   {
@@ -177,8 +195,14 @@ private:
   std::string bt_xml_default_file_path_, bt_xml_file_path_;
   double bt_loop_frequency_;
 
+  // subscriber
+  std::shared_ptr<ros::Subscriber> rviz_goal_sub_;
+
   // main action server
-  std::unique_ptr<ActionT> action_server_;
+  std::shared_ptr<ActionT> action_server_;
+
+  // self action client
+  std::shared_ptr<ClientT> self_action_client_;
 
   // The BehaviorTreeFactory to dynamically construct the behavior tree
   BT::BehaviorTreeFactory factory_;

@@ -62,18 +62,6 @@ foreach(bt_plugin ${bt_plugin_libs})
   target_compile_definitions(${bt_plugin} PRIVATE BT_PLUGIN_EXPORT)
 endforeach()
 
-# BT action client node for sending bt goal from rviz
-add_executable(bt_action_client_node 
-  src/bt_action_client_node.cpp
-)
-add_dependencies(bt_action_client_node
-  ${${PROJECT_NAME}_EXPORTED_TARGETS} 
-  ${catkin_EXPORTED_TARGETS}
-)
-target_link_libraries(bt_action_client_node
-  ${catkin_LIBRARIES}
-)
-
 #############
 ## Install ##
 #############
@@ -81,7 +69,6 @@ target_link_libraries(bt_action_client_node
 install(TARGETS
   bt_action_server_nodelet
   ${bt_plugin_libs}
-  bt_action_client_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

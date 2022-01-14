@@ -3,7 +3,8 @@ Panels:
     Help Height: 0
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
+      Expanded:
+        - /Global Options1
       Splitter Ratio: 0.5
     Tree Height: 770
   - Class: rviz/Selection
@@ -60,24 +61,24 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: rviz/MarkerArray
-      Enabled: true
+      Enabled: false
       Marker Topic: /carla/markers
       Name: Objects
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
         Max Value: 4.1423187255859375
-        Min Value: -5.848587989807129
+        Min Value: -5.82105827331543
         Value: true
       Axis: Z
       Channel Name: intensity
       Class: rviz/PointCloud2
-      Color: 255; 255; 255
-      Color Transformer: Intensity
+      Color: 255; 0; 0
+      Color Transformer: FlatColor
       Decay Time: 0
       Enabled: true
       Invert Rainbow: false
@@ -120,7 +121,7 @@ Visualization Manager:
         trajectory: true
       Queue Size: 100
       Value: true
-    - Alpha: 0.699999988079071
+    - Alpha: 0.5
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
         Max Value: 8.954442977905273
@@ -150,7 +151,7 @@ Visualization Manager:
       Value: true
   Enabled: true
   Global Options:
-    Background Color: 48; 48; 48
+    Background Color: 0; 0; 0
     Default Light: true
     Fixed Frame: map
     Frame Rate: 30
@@ -176,7 +177,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 20.009204864501953
+      Distance: 34.70194625854492
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -184,17 +185,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 127.14775085449219
-        Y: -190.9056396484375
-        Z: 3.7812649679835886e-05
+        X: 137.07855224609375
+        Y: -190.5819854736328
+        Z: 4.260183413862251e-05
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5203978419303894
+      Pitch: 0.5903993248939514
       Target Frame: <Fixed Frame>
-      Yaw: 6.273579120635986
+      Yaw: 0.010391483083367348
     Saved: ~
 Window Geometry:
   CarlaControl:

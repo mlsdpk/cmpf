@@ -7,7 +7,7 @@
     <arg name="lanelet2_map_file_path" value="$(find cmpf_bringup)/map/Town01/Town01.osm"/>
 
     <!-- use pcd map or not -->
-    <arg name="use_pcd" value="false"/>
+    <arg name="use_pcd" value="true"/>
 
     <arg name="nodelet_manager" default="cmpf_nodelet_manager"/>
 
@@ -62,10 +62,6 @@
             type="nodelet" 
             name="behavior_tree" 
             args="load cmpf_behavior_tree/BTActionServerNodelet $(arg nodelet_manager)"/>
-
-        <!-- bt client node for sending goal to server using rviz 2D Nav goal -->
-        <!-- TODO: Remove this node and add this into BTActionServerNodelet as self-client -->
-        <node pkg="cmpf_behavior_tree" type="bt_action_client_node" name="bt_action_client_node"/>
     </group>
 
 </launch> 
